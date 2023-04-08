@@ -1,27 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
+import LabelledInput from "./LabelledInput";
 
 interface Props {
-  formFields: Field[];
-  closeFormCB: () => void
+  closeFormCB: () => void;
 }
 
-interface Field {
-  id: number;
-  label: string;
-  type: string;
-}
+const formFields = [
+  { id: 1, label: "First Name", type: "text" },
+  { id: 2, label: "Last Name", type: "text" },
+  { id: 3, label: "Email", type: "email" },
+  { id: 4, label: "Date of Birth", type: "date" },
+  { id: 5, label: "Phone number", type: "number" },
+];
 
 const ReactForm = (props: Props) => {
+  const [state, setState] = useState(formFields);
+  const addField = () => {
+    setState([
+      ...state,
+      {
+        id: Number(new Date()),
+        label: "New Field",
+        type: "text",
+      },
+    ]);
+  };
+  const removeField = (id:number) => {
+    setState(
+      state.filter(field => field.id !== id)
+    )
+  }
+
   return (
     <div className="p-4">
-      {props.formFields.map((field: Field) => (
-        <div className="font-semibold" key={field.id}>
-          <label>{field.label}</label>
-          <input
-            className="border-2 border-gray-200 rounded-lg p-2 m-2 w-full focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-            type={field.type}
-          />
-        </div>
+      {state.map((field) => (
+        <LabelledInput
+          key={field.id}
+          id={field.id}
+          label={field.label}
+          type={field.type}
+          removeFieldCB={removeField}
+        />
       ))}
       <div className="flex gap-2">
         <button className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg">
@@ -32,6 +51,12 @@ const ReactForm = (props: Props) => {
           onClick={props.closeFormCB}
         >
           Close Form
+        </button>
+        <button
+          className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
+          onClick={addField}
+        >
+          Add Field
         </button>
       </div>
     </div>
