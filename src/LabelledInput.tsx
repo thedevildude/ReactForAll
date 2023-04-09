@@ -6,10 +6,8 @@ const LabelledInput = (props: {
   value: string;
   type: string;
   removeFieldCB: (id: number) => void;
-  handleChangeCB: (value: string, id:number) => void;
-
+  handleChangeCB: (value: string, id: number) => void;
 }) => {
-
   return (
     <div className="font-semibold">
       <label>{props.label}</label>
@@ -18,8 +16,8 @@ const LabelledInput = (props: {
           value={props.value}
           className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
           type={props.type}
-          onChange={e => {
-            props.handleChangeCB(e.target.value, props.id)
+          onChange={(e) => {
+            props.handleChangeCB(e.target.value, props.id);
           }}
         />
         <button

@@ -9,7 +9,9 @@ const Header = (props: { title: string }) => {
         alt="logo"
         style={{ animation: "spin 2s liner infinite" }}
       />
-      <h1 className="text-xl text-center flex-1 font-semibold">{props.title}</h1>
+      <h1 className="text-xl text-center flex-1 font-semibold">
+        {props.title}
+      </h1>
     </div>
   );
 };
