@@ -5,7 +5,14 @@ interface Props {
   closeFormCB: () => void;
 }
 
-const formFields = [
+interface formField {
+  id: number,
+  label: string,
+  type: string,
+  value: string
+}
+
+const initialFormFields: formField[] = [
   { id: 1, label: "First Name", type: "text", value: "John" },
   { id: 2, label: "Last Name", type: "text", value: "Doe" },
   { id: 3, label: "Email", type: "email", value: "johndoe@email.com" },
@@ -13,18 +20,28 @@ const formFields = [
   { id: 5, label: "Phone number", type: "tel", value: "3232332" },
 ];
 
+const initialState: () => formField[] = () => {
+  const formFieldsJSON = localStorage.getItem("formFields");
+  const persistantFormFields = formFieldsJSON ? JSON.parse(formFieldsJSON) : initialFormFields
+  return persistantFormFields
+};
+
+const saveformData = (currentState: formField[]) => {
+  localStorage.setItem("formFields", JSON.stringify(currentState));
+};
+
 const ReactForm = (props: Props) => {
   const handleChange = (value: string, id: number) => {
-    const newState = state.map(field => {
-      let newState = {...field}
+    const newState = state.map((field) => {
+      let newState = { ...field };
       if (field.id === id) {
-        newState.value = value
+        newState.value = value;
       }
-      return newState
-    })
-    setState([...newState])
+      return newState;
+    });
+    setState([...newState]);
   };
-  const [state, setState] = useState(formFields);
+  const [state, setState] = useState(initialState());
   const [newField, setNewField] = useState("");
   const addField = () => {
     setState([
@@ -84,8 +101,11 @@ const ReactForm = (props: Props) => {
         </button>
       </div>
       <div className="flex gap-4">
-        <button className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg">
-          Submit
+        <button
+          className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
+          onClick={(_) => saveformData(state)}
+        >
+          Save
         </button>
         <button
           className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
