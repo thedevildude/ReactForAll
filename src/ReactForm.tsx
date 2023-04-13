@@ -3,6 +3,7 @@ import LabelledInput from "./LabelledInput";
 
 interface Props {
   closeFormCB: () => void;
+  id: number;
 }
 
 interface formData {
@@ -18,31 +19,15 @@ interface formField {
   value: string;
 }
 
-const initialFormFields: formField[] = [
-  { id: 1, label: "First Name", type: "text", value: "John" },
-  { id: 2, label: "Last Name", type: "text", value: "Doe" },
-  { id: 3, label: "Email", type: "email", value: "johndoe@email.com" },
-  { id: 4, label: "Date of Birth", type: "date", value: "1999-10-12" },
-  { id: 5, label: "Phone number", type: "tel", value: "3232332" },
-];
-
 const getLocalForms: () => formData[] = () => {
   const savedFormsJSON = localStorage.getItem("savedForms");
   return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
 };
 
-const initialState: () => formData = () => {
+const getForm: (id: number) => formData = (id) => {
   const localForms = getLocalForms();
-  if (localForms.length > 0) {
-    return localForms[0];
-  }
-  const newForm = {
-    id: Number(new Date()),
-    title: "Untitled Form",
-    formFields: initialFormFields,
-  };
-  saveLocalForms([...localForms, newForm])
-  return newForm;
+  const form = localForms.filter((form) => form.id === id);
+  return form[0];
 };
 
 const saveLocalForms = (localForms: formData[]) => {
@@ -58,6 +43,10 @@ const saveformData = (currentState: formData) => {
 };
 
 const ReactForm = (props: Props) => {
+  const initialState: () => formData = () => {
+    const form = getForm(props.id);
+    return form;
+  };
   const titleRef = useRef<HTMLInputElement>(null);
   const handleChange = (value: string, id: number) => {
     setState({
@@ -69,6 +58,7 @@ const ReactForm = (props: Props) => {
         return field;
       }),
     });
+
   };
   const [state, setState] = useState(() => initialState());
   const [newField, setNewField] = useState("");

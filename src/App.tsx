@@ -1,8 +1,8 @@
 import { useState } from "react";
 import AppContainer from "./AppContainer";
 import Header from "./Header";
-import ReactForm from "./ReactForm";
 import Home from "./components/Home";
+import FormList from "./components/FormList";
 
 function App() {
   const [state, setState] = useState("HOME");
@@ -21,7 +21,7 @@ function App() {
         {state === "HOME" ? (
           <Home openFormCB={openForm} />
         ) : (
-          <ReactForm closeFormCB={closeForm} />
+          <FormList closeFormCB={closeForm}/>
         )}
       </div>
     </AppContainer>
