@@ -58,7 +58,6 @@ const ReactForm = (props: Props) => {
         return field;
       }),
     });
-
   };
   const [state, setState] = useState(() => initialState());
   const [newField, setNewField] = useState("");
@@ -113,44 +112,46 @@ const ReactForm = (props: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted">
-      <input
-        type="text"
-        value={state.title}
-        className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-        onChange={(e) => {
-          setState({ ...state, title: e.target.value });
-        }}
-        ref={titleRef}
-      />
-      <div>
-        {state.formFields.map((field) => (
-          <LabelledInput
-            key={field.id}
-            id={field.id}
-            label={field.label}
-            value={field.value}
-            type={field.type}
-            removeFieldCB={removeField}
-            handleChangeCB={handleChange}
-          />
-        ))}
-      </div>
-      <div className="flex gap-2">
+    <div>
+      <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-scroll">
         <input
           type="text"
-          value={newField}
+          value={state.title}
           className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
           onChange={(e) => {
-            setNewField(e.target.value);
+            setState({ ...state, title: e.target.value });
           }}
+          ref={titleRef}
         />
-        <button
-          className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-          onClick={addField}
-        >
-          Add Field
-        </button>
+        <div>
+          {state.formFields.map((field) => (
+            <LabelledInput
+              key={field.id}
+              id={field.id}
+              label={field.label}
+              value={field.value}
+              type={field.type}
+              removeFieldCB={removeField}
+              handleChangeCB={handleChange}
+            />
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newField}
+            className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+            onChange={(e) => {
+              setNewField(e.target.value);
+            }}
+          />
+          <button
+            className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
+            onClick={addField}
+          >
+            Add Field
+          </button>
+        </div>
       </div>
       <div className="flex gap-4">
         <button
