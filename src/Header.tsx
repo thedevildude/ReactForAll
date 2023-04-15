@@ -1,6 +1,6 @@
 import logo from "./logo.svg";
 
-const Header = (props: { title: string }) => {
+const Header = () => {
   return (
     <div className="flex gap-2 items-center">
       <img
@@ -9,9 +9,20 @@ const Header = (props: { title: string }) => {
         alt="logo"
         style={{ animation: "spin 2s liner infinite" }}
       />
-      <h1 className="text-xl text-center flex-1 font-semibold">
-        {props.title}
-      </h1>
+      <div className="flex gap-2 items-center">
+        {[
+          { page: "Home", url: "/" },
+          { page: "About", url: "/about" },
+        ].map((link) => (
+          <a
+            key={link.url}
+            href={link.url}
+            className="text-gray-800 p-2 m-2 uppercase font-medium"
+          >
+            {link.page}
+          </a>
+        ))}
+      </div>
     </div>
   );
 };
