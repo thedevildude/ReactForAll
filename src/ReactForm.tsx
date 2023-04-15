@@ -113,7 +113,7 @@ const ReactForm = (props: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted">
+    <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-scroll">
       <input
         type="text"
         value={state.title}
