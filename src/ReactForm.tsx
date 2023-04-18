@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import LabelledInput from "./LabelledInput";
+import { navigate } from "raviger";
 
 interface Props {
   id: number;
@@ -57,10 +58,14 @@ const ReactForm = (props: Props) => {
         return field;
       }),
     });
-
   };
   const [state, setState] = useState(() => initialState());
   const [newField, setNewField] = useState("");
+
+  useEffect(() => {
+    state.id !== props.id && navigate(`/form/${state.id}`);
+  }, [state.id, props.id]);
+
   useEffect(() => {
     const oldTitle = document.title;
     document.title = "Form Editor";

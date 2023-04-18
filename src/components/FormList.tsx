@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQueryParams } from "raviger";
+import { Link, navigate, useQueryParams } from "raviger";
 
 interface formData {
   id: number;
@@ -43,6 +43,7 @@ const FormList = () => {
     };
     saveLocalForms([...localForms, newForm]);
     setForms(getLocalForms());
+    navigate(`/forms/${newForm.id}`)
   };
 
   const deleteForm: (id: number) => void = (id) => {
@@ -86,12 +87,12 @@ const FormList = () => {
               >
                 <p>{form.title}</p>
                 <div className="flex gap-2">
-                  <a
+                  <Link
                     href={`/forms/${form.id}`}
                     className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-5 rounded-lg"
                   >
                     Edit
-                  </a>
+                  </Link>
                   <button
                     className="hover:text-red-900 text-red-500"
                     onClick={() => deleteForm(form.id)}
@@ -104,12 +105,12 @@ const FormList = () => {
           })}
       </div>
       <div className="flex gap-5">
-        <a
+        <Link
           className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
           href="/"
         >
           Close Form List
-        </a>
+        </Link>
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
           onClick={newForm}
