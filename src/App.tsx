@@ -1,22 +1,7 @@
-import { useState } from "react";
-import Home from "./components/Home";
-import FormList from "./components/FormList";
+import AppRouter from "./router/AppRouter";
 
 function App() {
-  const [state, setState] = useState("HOME");
-
-  const openForm = () => {
-    setState("FORM");
-  };
-  const closeForm = () => {
-    setState("HOME");
-  };
-
-  return state === "HOME" ? (
-    <Home openFormCB={openForm} />
-  ) : (
-    <FormList closeFormCB={closeForm} />
-  );
+  return <AppRouter />
 }
 
 export default App;

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 
 interface Props {
-  closeFormCB: () => void;
   id: number;
 }
 
@@ -113,7 +112,7 @@ const ReactForm = (props: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-scroll">
+    <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-auto">
       <input
         type="text"
         value={state.title}
@@ -159,12 +158,12 @@ const ReactForm = (props: Props) => {
         >
           Save
         </button>
-        <button
+        <a
           className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-          onClick={props.closeFormCB}
+          href="/"
         >
           Close Form
-        </button>
+        </a>
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
           onClick={clearForm}
