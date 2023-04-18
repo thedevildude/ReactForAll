@@ -7,7 +7,7 @@ import Home from "../components/Home";
 const routes = {
   "/": () => <Home />,
   "/about": () => <About />,
-  "/forms/:id": ({id}: {id: string}) => <ReactForm id={Number(id)}/>
+  "/forms/:id": ({ id }: { id: string }) => <ReactForm id={Number(id)} />,
 };
 
 export default function AppRouter() {

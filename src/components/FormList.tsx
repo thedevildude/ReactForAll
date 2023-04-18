@@ -43,7 +43,7 @@ const FormList = () => {
     };
     saveLocalForms([...localForms, newForm]);
     setForms(getLocalForms());
-    navigate(`/forms/${newForm.id}`)
+    navigate(`/forms/${newForm.id}`);
   };
 
   const deleteForm: (id: number) => void = (id) => {
@@ -59,10 +59,10 @@ const FormList = () => {
     <div>
       <div className="flex flex-col gap-5 p-4 max-h-96 overflow-y-auto">
         <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          setQuery({search: searchString})
-        }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setQuery({ search: searchString });
+          }}
         >
           <label>Search</label>
           <input
