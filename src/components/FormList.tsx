@@ -1,18 +1,7 @@
 import React, { useState } from "react";
 import { Link, navigate, useQueryParams } from "raviger";
-
-interface formData {
-  id: number;
-  title: string;
-  formFields: formField[];
-}
-
-interface formField {
-  id: number;
-  label: string;
-  type: string;
-  value: string;
-}
+import { formField } from "../types";
+import { getLocalForms, saveLocalForms } from "../utils/helpers";
 
 const initialFormFields: formField[] = [
   { id: 1, label: "First Name", type: "text", value: "" },
@@ -21,15 +10,6 @@ const initialFormFields: formField[] = [
   { id: 4, label: "Date of Birth", type: "date", value: "" },
   { id: 5, label: "Phone number", type: "tel", value: "" },
 ];
-
-const getLocalForms: () => formData[] = () => {
-  const savedFormsJSON = localStorage.getItem("savedForms");
-  return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
-};
-
-const saveLocalForms = (localForms: formData[]) => {
-  localStorage.setItem("savedForms", JSON.stringify(localForms));
-};
 
 const FormList = () => {
   const [forms, setForms] = useState(getLocalForms());
@@ -92,6 +72,12 @@ const FormList = () => {
                     className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-5 rounded-lg"
                   >
                     Edit
+                  </Link>
+                  <Link
+                    href={`/preview/${form.id}`}
+                    className="bg-amber-500 hover:bg-amber-700 text-white py-2 px-5 rounded-lg"
+                  >
+                    Preview
                   </Link>
                   <button
                     className="hover:text-red-900 text-red-500"

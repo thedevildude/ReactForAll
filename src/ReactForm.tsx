@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 import { navigate } from "raviger";
+import { getForm, getLocalForms, saveLocalForms } from "./utils/helpers";
 
 interface Props {
   id: number;
@@ -18,21 +19,6 @@ interface formField {
   type: string;
   value: string;
 }
-
-const getLocalForms: () => formData[] = () => {
-  const savedFormsJSON = localStorage.getItem("savedForms");
-  return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
-};
-
-const getForm: (id: number) => formData = (id) => {
-  const localForms = getLocalForms();
-  const form = localForms.filter((form) => form.id === id);
-  return form[0];
-};
-
-const saveLocalForms = (localForms: formData[]) => {
-  localStorage.setItem("savedForms", JSON.stringify(localForms));
-};
 
 const saveformData = (currentState: formData) => {
   const localForms = getLocalForms();
