@@ -18,7 +18,7 @@ const Header = () => {
           <ActiveLink
             key={link.url}
             href={link.url}
-            className="text-gray-800 p-2 m-2 uppercase font-medium"
+            className="text-gray-800 p-2 m-2 uppercase font-medium active:text-blue-600"
             exactActiveClass="text-blue-600"
           >
             {link.page}

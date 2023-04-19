@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import { navigate } from "raviger";
+import { Link, navigate } from "raviger";
 import { getForm, getLocalForms, saveLocalForms } from "./utils/helpers";
 
 interface Props {
@@ -39,14 +39,14 @@ const ReactForm = (props: Props) => {
       ...state,
       formFields: state.formFields.map((field) => {
         if (field.id === id) {
-          return { ...field, value };
+          return { ...field, label: value };
         }
         return field;
       }),
     });
   };
   const [state, setState] = useState(() => initialState());
-  const [newField, setNewField] = useState("");
+  const [newField, setNewField] = useState({ label: "", type: "" });
 
   useEffect(() => {
     state.id !== props.id && navigate(`/form/${state.id}`);
@@ -77,13 +77,13 @@ const ReactForm = (props: Props) => {
         ...state.formFields,
         {
           id: Number(new Date()),
-          label: newField,
-          type: "text",
+          label: newField.label,
+          type: newField.type,
           value: "",
         },
       ],
     });
-    setNewField("");
+    setNewField({ label: "", type: "" });
   };
   const removeField = (id: number) => {
     setState({
@@ -113,30 +113,38 @@ const ReactForm = (props: Props) => {
         }}
         ref={titleRef}
       />
-      <div>
+      <div className="flex flex-col gap-4 pt-4">
         {state.formFields.map((field) => (
           <LabelledInput
             key={field.id}
             id={field.id}
-            label={field.label}
-            value={field.value}
-            type={field.type}
+            value={field.label}
             removeFieldCB={removeField}
             handleChangeCB={handleChange}
           />
         ))}
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-4 items-center">
         <input
           type="text"
-          value={newField}
-          className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+          value={newField.label}
+          placeholder="New Field Label"
+          className="border-2 border-gray-200 rounded-lg p-2 mt-4 w-full focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
           onChange={(e) => {
-            setNewField(e.target.value);
+            setNewField({ ...newField, label: e.target.value });
           }}
         />
+        <select
+          className="w-full border-2 border-gray-200 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+          onChange={(e) => setNewField({ ...newField, type: e.target.value })}
+        >
+          <option value="text">Text</option>
+          <option value="number">Number</option>
+          <option value="date">Date</option>
+          <option value="time">Time</option>
+        </select>
         <button
-          className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
+          className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
           onClick={addField}
         >
           Add Field
@@ -149,12 +157,12 @@ const ReactForm = (props: Props) => {
         >
           Save
         </button>
-        <a
+        <Link
           className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
           href="/"
         >
           Close Form
-        </a>
+        </Link>
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
           onClick={clearForm}
