@@ -44,7 +44,7 @@ const PreviewForm = (props: Props) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5">
+    <div className="flex flex-col items-center gap-5 w-auto">
       <h1 className="text-xl font-semibold">{form.title}</h1>
       <div className="flex items-center justify-between gap-5">
         <BsFillArrowLeftCircleFill
@@ -54,7 +54,7 @@ const PreviewForm = (props: Props) => {
         <div className="flex flex-col items-center">
           {form.formFields[inputIndex].label}
           <input
-            className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+            className="border-2 border-gray-200 rounded-lg p-2 m-2 w-60 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             type={form.formFields[inputIndex].type}
             value={form.formFields[inputIndex].value}
             onChange={(e) =>

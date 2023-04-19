@@ -92,7 +92,7 @@ const ReactForm = (props: Props) => {
     });
   };
 
-  const clearForm = () => {
+/*   const clearForm = () => {
     const newState = state.formFields.map((obj) => {
       return { ...obj, value: "" };
     });
@@ -100,7 +100,7 @@ const ReactForm = (props: Props) => {
       ...state,
       formFields: [...newState],
     });
-  };
+  }; */
 
   return (
     <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-auto">
@@ -150,7 +150,7 @@ const ReactForm = (props: Props) => {
           Add Field
         </button>
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-4 justify-center">
         <button
           className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
           onClick={(_) => saveformData(state)}
@@ -158,17 +158,17 @@ const ReactForm = (props: Props) => {
           Save
         </button>
         <Link
-          className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
+          className="py-2 px-5 mt-2 text-white bg-amber-500 hover:bg-amber-700 font-semibold rounded-lg"
           href="/"
         >
           Close Form
         </Link>
-        <button
+        {/* <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
           onClick={clearForm}
         >
           Clear
-        </button>
+        </button> */}
       </div>
     </div>
   );

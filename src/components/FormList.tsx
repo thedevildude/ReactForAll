@@ -90,18 +90,12 @@ const FormList = () => {
             );
           })}
       </div>
-      <div className="flex gap-5">
-        <Link
-          className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-          href="/"
-        >
-          Close Form List
-        </Link>
+      <div className="p-4">
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
           onClick={newForm}
         >
-          New
+          New Form
         </button>
       </div>
     </div>
