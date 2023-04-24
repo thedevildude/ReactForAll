@@ -19,9 +19,8 @@ const PreviewForm = (props: Props) => {
       return navigate("/");
     }
     setFieldValue(form.formFields);
-    setInputIndex(form.formFields.length > 0? 0: -1);
+    setInputIndex(form.formFields.length > 0 ? 0 : -1);
     setLoading(false);
-    console.log("use effect ran");
   }, [form]);
 
   const addInputIndex = (
@@ -38,7 +37,6 @@ const PreviewForm = (props: Props) => {
       setInputIndex(inputIndex - 1);
     }
   };
-
   const handleChange: (value: string, id: number) => void = (value, id) => {
     setFieldValue(
       fieldValue.map((field) => {
