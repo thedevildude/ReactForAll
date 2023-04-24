@@ -1,6 +1,6 @@
 import { useRoutes, Redirect } from "raviger";
 import About from "../components/About";
-import AppContainer from "../AppContainer";
+import AppContainer from "../components/AppContainer";
 import ReactForm from "../components/ReactForm";
 import Home from "../components/Home";
 import PreviewForm from "../components/PreviewForm";
