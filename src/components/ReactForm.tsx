@@ -119,6 +119,7 @@ const ReactForm = (props: Props) => {
             key={field.id}
             id={field.id}
             value={field.label}
+            type={field.type}
             removeFieldCB={removeField}
             handleChangeCB={handleChange}
           />
