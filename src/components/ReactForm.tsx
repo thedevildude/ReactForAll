@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 import { Link, navigate } from "raviger";
-import { getForm, getLocalForms, saveLocalForms } from "./utils/helpers";
+import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
 
 interface Props {
   id: number;

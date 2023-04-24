@@ -1,7 +1,7 @@
-import { useRoutes } from "raviger";
+import { useRoutes, Redirect } from "raviger";
 import About from "../components/About";
 import AppContainer from "../AppContainer";
-import ReactForm from "../ReactForm";
+import ReactForm from "../components/ReactForm";
 import Home from "../components/Home";
 import PreviewForm from "../components/PreviewForm";
 
@@ -12,6 +12,7 @@ const routes = {
   "/preview/:formId": ({ formId }: { formId: string }) => (
     <PreviewForm formId={Number(formId)} />
   ),
+  "*": () => <Redirect to="/" />,
 };
 
 export default function AppRouter() {
