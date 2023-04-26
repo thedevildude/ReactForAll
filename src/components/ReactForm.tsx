@@ -1,23 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import LabelledInput from "./LabelledInput";
+import LabelledInput from "./InputComponents/LabelledInput";
 import { Link, navigate } from "raviger";
 import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
+import { formData } from "../types";
+import DropdownInput from "./FormEditorComponents/DropdownInput";
 
 interface Props {
   id: number;
-}
-
-interface formData {
-  id: number;
-  title: string;
-  formFields: formField[];
-}
-
-interface formField {
-  id: number;
-  label: string;
-  type: string;
-  value: string;
 }
 
 const saveformData = (currentState: formData) => {
@@ -40,6 +29,18 @@ const ReactForm = (props: Props) => {
       formFields: state.formFields.map((field) => {
         if (field.id === id) {
           return { ...field, label: value };
+        }
+        return field;
+      }),
+    });
+  };
+  const handleOptionChange = (value: string, id: number, index: number) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.kind === "dropdown" && field.id === id) {
+          field.options[index] = value;
+          return { ...field, options: field.options };
         }
         return field;
       }),
@@ -77,8 +78,9 @@ const ReactForm = (props: Props) => {
         ...state.formFields,
         {
           id: Number(new Date()),
+          kind: "text",
           label: newField.label,
-          type: newField.type,
+          type: "text",
           value: "",
         },
       ],
@@ -92,7 +94,7 @@ const ReactForm = (props: Props) => {
     });
   };
 
-/*   const clearForm = () => {
+  /*   const clearForm = () => {
     const newState = state.formFields.map((obj) => {
       return { ...obj, value: "" };
     });
@@ -114,16 +116,29 @@ const ReactForm = (props: Props) => {
         ref={titleRef}
       />
       <div className="flex flex-col gap-4 pt-4">
-        {state.formFields.map((field) => (
-          <LabelledInput
-            key={field.id}
-            id={field.id}
-            value={field.label}
-            type={field.type}
-            removeFieldCB={removeField}
-            handleChangeCB={handleChange}
-          />
-        ))}
+        {state.formFields.map((field) => {
+          return field.kind === "text" ? (
+            <LabelledInput
+              key={field.id}
+              id={field.id}
+              value={field.label}
+              type={field.type}
+              removeFieldCB={removeField}
+              handleChangeCB={handleChange}
+            />
+          ) : (
+            <DropdownInput
+              id={field.id}
+              key={field.id}
+              kind={field.kind}
+              value={field.label}
+              options={field.options}
+              handleChangeCB={handleChange}
+              handleOptionChangeCB={handleOptionChange}
+              removeFieldCB={removeField}
+            />
+          );
+        })}
       </div>
       <div className="flex flex-col gap-4 items-center">
         <input

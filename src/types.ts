@@ -1,14 +1,26 @@
-interface formData {
+type formData = {
   id: number;
   title: string;
   formFields: formField[];
-}
+};
 
-interface formField {
+type textFieldTypes = "text" | "email" | "number" | "date" | "tel";
+
+type TextField = {
   id: number;
+  kind: "text";
   label: string;
-  type: string;
+  type: textFieldTypes;
   value: string;
-}
+};
 
-export type {formData, formField};
+type DropdownField = {
+  id: number;
+  kind: "dropdown";
+  label: string;
+  options: string[];
+  value: string;
+};
+
+export type formField = TextField | DropdownField;
+export type {formData};

@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { Link, navigate } from "raviger";
 import { getForm } from "../utils/helpers";
 import { formData, formField } from "../types";
+import LabelledDropdown from "./InputComponents/LabelledDropdown";
 
 interface Props {
   formId: number;
@@ -23,6 +24,28 @@ const PreviewForm = (props: Props) => {
     setLoading(false);
   }, [form]);
 
+  const renderField: (field: formField) => ReactNode = (field) => {
+    switch (field.kind) {
+      case "text":
+        return (
+          <input
+            className="border-2 border-gray-200 rounded-lg p-2 m-2 w-60 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+            type={field.type}
+            value={fieldValue[inputIndex].value}
+            onChange={(e) => handleChange(e.target.value, field.id)}
+          />
+        );
+      case "dropdown":
+        return (
+          <LabelledDropdown
+            id={field.id}
+            value={fieldValue[inputIndex].value}
+            options={field.options}
+            handleChangeCB={handleChange}
+          />
+        );
+    }
+  };
   const addInputIndex = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -67,16 +90,9 @@ const PreviewForm = (props: Props) => {
             <div>
               <div className="flex flex-col items-center">
                 {form.formFields[inputIndex].label}
-                <input
-                  className="border-2 border-gray-200 rounded-lg p-2 m-2 w-60 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  type={form.formFields[inputIndex]?.type}
-                  value={fieldValue[inputIndex]?.value}
-                  onChange={(e) =>
-                    handleChange(e.target.value, form.formFields[inputIndex].id)
-                  }
-                />
+                {renderField(form.formFields[inputIndex])}
               </div>
-              <div className="flex w-full justify-between">
+              <div className="flex w-full justify-between gap-20">
                 {inputIndex === 0 ? (
                   ""
                 ) : (

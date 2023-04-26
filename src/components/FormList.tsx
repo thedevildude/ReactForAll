@@ -4,11 +4,17 @@ import { formField } from "../types";
 import { getLocalForms, saveLocalForms } from "../utils/helpers";
 
 const initialFormFields: formField[] = [
-  { id: 1, label: "First Name", type: "text", value: "" },
-  { id: 2, label: "Last Name", type: "text", value: "" },
-  { id: 3, label: "Email", type: "email", value: "" },
-  { id: 4, label: "Date of Birth", type: "date", value: "" },
-  { id: 5, label: "Phone number", type: "tel", value: "" },
+  { kind: "text", id: 1, label: "First Name", type: "text", value: "" },
+  { kind: "text", id: 2, label: "Last Name", type: "text", value: "" },
+  { kind: "text", id: 3, label: "Email", type: "email", value: "" },
+  { kind: "text", id: 4, label: "Date of Birth", type: "date", value: "" },
+  {
+    kind: "dropdown",
+    id: 5,
+    label: "Select a priority",
+    options: ["High", "Medium", "Low"],
+    value: "",
+  },
 ];
 
 const FormList = () => {
