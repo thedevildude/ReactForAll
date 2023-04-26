@@ -87,6 +87,31 @@ const ReactForm = (props: Props) => {
     });
     setNewField({ label: "", type: "" });
   };
+
+  const addOption = (id: number) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.kind === "dropdown" && field.id === id) {
+          field.options.push(`Option ${field.options.length + 1}`);
+          return { ...field, options: field.options };
+        }
+        return field;
+      }),
+    });
+  };
+  const removeOption = (id: number, index: number) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.kind === "dropdown" && field.id === id) {
+          field.options.splice(index, 1);
+          return { ...field, options: field.options };
+        }
+        return field;
+      }),
+    });
+  }
   const removeField = (id: number) => {
     setState({
       ...state,
@@ -136,6 +161,8 @@ const ReactForm = (props: Props) => {
               handleChangeCB={handleChange}
               handleOptionChangeCB={handleOptionChange}
               removeFieldCB={removeField}
+              addOptionCB={addOption}
+              removeOptionCB={removeOption}
             />
           );
         })}
