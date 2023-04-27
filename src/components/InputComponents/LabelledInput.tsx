@@ -4,7 +4,6 @@ const LabelledInput = (props: {
   id: number;
   value: string;
   type: string;
-  removeFieldCB: (id: number) => void;
   handleChangeCB: (value: string, id: number) => void;
 }) => {
   return (
@@ -21,12 +20,6 @@ const LabelledInput = (props: {
           />
           <p className="ml-2 text-gray-500 text-sm">{props.type}</p>
         </div>
-        <button
-          className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-          onClick={(_) => props.removeFieldCB(props.id)}
-        >
-          Remove
-        </button>
       </div>
     </div>
   );

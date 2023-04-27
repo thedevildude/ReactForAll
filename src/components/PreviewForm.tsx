@@ -3,6 +3,7 @@ import { Link, navigate } from "raviger";
 import { getForm } from "../utils/helpers";
 import { formData, formField } from "../types";
 import LabelledDropdown from "./InputComponents/LabelledDropdown";
+import LabelledTextArea from "./InputComponents/LabelledTextArea";
 
 interface Props {
   formId: number;
@@ -20,7 +21,7 @@ const PreviewForm = (props: Props) => {
     if (form === null || form === undefined) {
       return navigate("/");
     }
-    if(form.formFields.length === 0){
+    if (form.formFields.length === 0) {
       return setText("No fields in form");
     }
     setFieldValue(form.formFields);
@@ -59,6 +60,16 @@ const PreviewForm = (props: Props) => {
             multiple={true}
           />
         );
+      case "textarea":
+        return (
+          <LabelledTextArea
+            id={field.id}
+            value={fieldValue[inputIndex].value}
+            rows={field.rows}
+            columns={field.columns}
+            handleChangeCB={handleChange}
+          />
+        );
     }
   };
   const addInputIndex = (
@@ -79,7 +90,7 @@ const PreviewForm = (props: Props) => {
     setFieldValue(
       fieldValue.map((field) => {
         if (field.id === id) {
-          if (field.kind === "multiselect") {            
+          if (field.kind === "multiselect") {
             return { ...field, value: value.split(",") };
           }
           return { ...field, value: value };
@@ -87,7 +98,7 @@ const PreviewForm = (props: Props) => {
           return field;
         }
       })
-    );    
+    );
   };
 
   const handleSubmit = () => {

@@ -220,7 +220,6 @@ const ReactForm = (props: Props) => {
                     id={field.id}
                     value={field.label}
                     type={field.type}
-                    removeFieldCB={removeField}
                     handleChangeCB={handleChange}
                   />
                 );
