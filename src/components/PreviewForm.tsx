@@ -9,6 +9,7 @@ interface Props {
 
 const PreviewForm = (props: Props) => {
   const [loading, setLoading] = useState(true);
+  const [text, setText] = useState("");
   const [form, setForm] = useState<formData>(getForm(props.formId));
   const [fieldValue, setFieldValue] = useState<formField[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -18,8 +19,12 @@ const PreviewForm = (props: Props) => {
     if (form === null || form === undefined) {
       return navigate("/");
     }
+    if (form.formFields.length === 0) {
+      setText("Form is empty");
+      return;
+    }
     setFieldValue(form.formFields);
-    setInputIndex(form.formFields.length > 0 ? 0 : -1);
+    setInputIndex(0);
     setLoading(false);
   }, [form]);
 
@@ -59,7 +64,15 @@ const PreviewForm = (props: Props) => {
   return (
     <div className="flex flex-col items-center gap-5 w-auto">
       {loading === true ? (
-        <div>Loading...</div>
+        <div className="flex flex-col">
+          {text}
+          <Link
+            className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
+            href="/"
+          >
+            Close Form
+          </Link>
+        </div>
       ) : (
         <div>
           <h1 className="text-xl font-semibold">{form.title}</h1>
