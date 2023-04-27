@@ -40,4 +40,4 @@ type TextArea = {
 };
 
 export type formField = TextField | DropdownField | MultiSelect | TextArea;
-export type {formData};
+export type { formData };
