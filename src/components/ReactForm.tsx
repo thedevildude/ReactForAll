@@ -46,11 +46,8 @@ const ReactForm = (props: Props) => {
     });
   };
   const [state, setState] = useState(() => initialState());
+  const [loading, setLoading] = useState(true);
   const [newField, setNewField] = useState({ label: "", type: "" });
-
-  useEffect(() => {
-    state.id !== props.id && navigate(`/form/${state.id}`);
-  }, [state.id, props.id]);
 
   useEffect(() => {
     const oldTitle = document.title;
@@ -62,13 +59,17 @@ const ReactForm = (props: Props) => {
   }, []);
 
   useEffect(() => {
+    if (state === null || state === undefined) {
+      return navigate("/");
+    }
+    setLoading(false);
     let timeout = setTimeout(() => {
       saveformData(state);
     }, 1000);
     return () => {
       clearTimeout(timeout);
     };
-  }, [state]);
+  }, [state, props.id]);
 
   const addField = () => {
     setState({
@@ -103,6 +104,8 @@ const ReactForm = (props: Props) => {
   }; */
 
   return (
+    <div className="flex flex-col gap-4">
+      {loading ? (<div>Loading...</div>): (
     <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-auto">
       <input
         type="text"
@@ -171,6 +174,9 @@ const ReactForm = (props: Props) => {
           Clear
         </button> */}
       </div>
+    </div>
+
+      )}
     </div>
   );
 };
