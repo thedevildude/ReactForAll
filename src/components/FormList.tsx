@@ -7,7 +7,7 @@ const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "First Name", type: "text", value: "" },
   { kind: "text", id: 2, label: "Last Name", type: "text", value: "" },
   { kind: "text", id: 3, label: "Email", type: "email", value: "" },
-  { kind: "text", id: 4, label: "Date of Birth", type: "date", value: "" },
+  { kind: "textarea", id: 4, label: "Write a bio", rows: 4, columns: 40, value: "" },
   {
     kind: "dropdown",
     id: 5,

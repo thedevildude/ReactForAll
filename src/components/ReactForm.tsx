@@ -5,6 +5,7 @@ import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
 import { formData } from "../types";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
 import MultiSelectInput from "./FormEditorComponents/MultiSelectInput";
+import TextAreaInput from "./FormEditorComponents/TextAreaInput";
 
 interface Props {
   id: number;
@@ -42,6 +43,12 @@ const ReactForm = (props: Props) => {
         if ((field.kind === "dropdown" || field.kind === "multiselect") && field.id === id) {
           field.options[index] = value;
           return { ...field, options: field.options };
+        } else if (field.kind === "textarea" && field.id === id) {
+          if (index === 0) {
+            return { ...field, rows: Number(value) };
+          } else {
+            return { ...field, columns: Number(value) };
+          }
         }
         return field;
       }),
@@ -128,7 +135,25 @@ const ReactForm = (props: Props) => {
       });
       setNewField({ label: "", type: "" });
       return;
-    } 
+    }
+    else if (newField.type === "textarea") {
+      setState({
+        ...state,
+        formFields: [
+          ...state.formFields,
+          {
+            id: Number(new Date()),
+            kind: "textarea",
+            label: newField.label,
+            rows: 4,
+            columns: 20,
+            value: "",
+          },
+        ],
+      });
+      setNewField({ label: "", type: "" });
+      return;
+    }
   };
 
   const addOption = (id: number) => {
@@ -210,7 +235,20 @@ const ReactForm = (props: Props) => {
               addOptionCB={addOption}
               removeOptionCB={removeOption}
             />
-          } return null;
+          } else if (field.kind === "textarea") {
+            return <TextAreaInput
+              id={field.id}
+              key={field.id}
+              kind={field.kind}
+              value={field.label}
+              rows={field.rows}
+              columns={field.columns}
+              handleChangeCB={handleChange}
+              handleOptionChangeCB={handleOptionChange}
+              removeFieldCB={removeField}
+            />
+          }
+           return null;
           })}
       </div>
       <div className="flex flex-col gap-4 items-center">
@@ -233,6 +271,7 @@ const ReactForm = (props: Props) => {
           <option value="time">Time</option>
           <option value="dropdown">Dropdown</option>
           <option value="multiselect">Multi Select</option>
+          <option value="textarea">Text Area</option>
         </select>
         <button
           className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"

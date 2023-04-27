@@ -31,7 +31,7 @@ const TextAreaInput = (props: Props) => {
         <p className="mx-2 text-gray-500 text-sm">{props.kind}</p>
         <button
           className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-          onClick={(_) => props.removeFieldCB(props.id)}
+          onClick={() => props.removeFieldCB(props.id)}
         >
           Remove
         </button>
@@ -39,8 +39,22 @@ const TextAreaInput = (props: Props) => {
       {isOpen && (
         <div className="flex w-full mt-2 rounded-lg shadow-lg bg-white">
           <div className="flex flex-col items-center border border-gray-200">
-            <p className="p-2 bg-gray-200">Rows</p>
-            <input className="p-2" type="number" />
+            <p className="p-2 w-full bg-gray-200">Rows</p>
+            <input
+              className="p-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+              value={props.rows}
+              type="number"
+              onChange={(e) => {props.handleOptionChangeCB(e.target.value, props.id, 0)}}
+            />
+          </div>
+          <div className="flex flex-col items-center border border-gray-200">
+            <p className="p-2 w-full bg-gray-200">Columns</p>
+            <input
+              className="p-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+              value={props.columns}
+              type="number"
+              onChange={(e) => {props.handleOptionChangeCB(e.target.value, props.id, 1)}}
+            />
           </div>
         </div>
       )}
