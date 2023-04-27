@@ -29,7 +29,7 @@ const PreviewForm = (props: Props) => {
       case "text":
         return (
           <input
-            className="border-2 border-gray-200 rounded-lg p-2 m-2 w-60 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+            className="border-2 border-gray-200 rounded-lg p-2 w-full focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             type={field.type}
             value={fieldValue[inputIndex].value}
             onChange={(e) => handleChange(e.target.value, field.id)}
@@ -80,46 +80,44 @@ const PreviewForm = (props: Props) => {
     console.log(form);
   };
   return (
-    <div className="flex flex-col items-center gap-5 w-auto">
+    <div>
       {loading === true ? (
         <div>Loading...</div>
       ) : (
-        <div>
+        <div className="flex flex-col items-center gap-5 w-full">
           <h1 className="text-xl font-semibold">{form.title}</h1>
           {submitted === false ? (
-            <div>
-              <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-full gap-5">
+              <div className="flex flex-col items-center w-full gap-2">
                 {form.formFields[inputIndex].label}
                 {renderField(form.formFields[inputIndex])}
               </div>
-              <div className="flex w-full justify-between gap-20">
-                {inputIndex === 0 ? (
-                  ""
-                ) : (
-                  <button
-                    className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
-                    onClick={(e) => subtractInputIndex(e)}
-                  >
-                    Previous Question
-                  </button>
-                )}
-                {inputIndex === form.formFields.length - 1 &&
-                inputIndex !== -1 ? (
-                  <button
-                    className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
-                    onClick={handleSubmit}
-                  >
-                    Submit
-                  </button>
-                ) : (
-                  <button
-                    className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
-                    onClick={(e) => addInputIndex(e)}
-                  >
-                    Next Question
-                  </button>
-                )}
-              </div>
+              {inputIndex === 0 ? (
+                ""
+              ) : (
+                <button
+                  className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
+                  onClick={(e) => subtractInputIndex(e)}
+                >
+                  Previous Question
+                </button>
+              )}
+              {inputIndex === form.formFields.length - 1 &&
+              inputIndex !== -1 ? (
+                <button
+                  className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
+                  onClick={(e) => addInputIndex(e)}
+                >
+                  Next Question
+                </button>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-5">
