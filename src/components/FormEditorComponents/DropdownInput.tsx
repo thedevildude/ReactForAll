@@ -47,12 +47,11 @@ const DropdownInput = (props: Props) => {
             New Option
           </button>
           {props.options.map((option, index) => (
-            <div className="flex items-center">
+            <div key={index} className="flex items-center">
               <input
-                key={index}
                 value={option}
                 type="text"
-                className="border border-gray-200 p-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none hover:bg-gray-200"
+                className="border border-gray-200 p-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:bg-gray-200 hover:bg-gray-200"
                 onChange={(e) =>
                   props.handleOptionChangeCB(e.target.value, props.id, index)
                 }

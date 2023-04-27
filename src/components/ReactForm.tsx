@@ -72,20 +72,46 @@ const ReactForm = (props: Props) => {
   }, [state]);
 
   const addField = () => {
-    setState({
-      ...state,
-      formFields: [
-        ...state.formFields,
-        {
-          id: Number(new Date()),
-          kind: "text",
-          label: newField.label,
-          type: "text",
-          value: "",
-        },
-      ],
-    });
-    setNewField({ label: "", type: "" });
+    if (newField.type === "dropdown") {
+      setState({
+        ...state,
+        formFields: [
+          ...state.formFields,
+          {
+            id: Number(new Date()),
+            kind: "dropdown",
+            label: newField.label,
+            options: ["Option 1", "Option 2"],
+            value: "",
+          },
+        ],
+      });
+      setNewField({ label: "", type: "" });
+      return;
+    } else if (
+      newField.type === "text" ||
+      newField.type === "number" ||
+      newField.type === "email" ||
+      newField.type === "date" ||
+      newField.type === "time" ||
+      newField.type === "tel"
+    ) {
+      setState({
+        ...state,
+        formFields: [
+          ...state.formFields,
+          {
+            id: Number(new Date()),
+            kind: "text",
+            label: newField.label,
+            type: newField.type,
+            value: "",
+          },
+        ],
+      });
+      setNewField({ label: "", type: "" });
+      return;
+    }
   };
 
   const addOption = (id: number) => {
@@ -111,23 +137,13 @@ const ReactForm = (props: Props) => {
         return field;
       }),
     });
-  }
+  };
   const removeField = (id: number) => {
     setState({
       ...state,
       formFields: state.formFields.filter((field) => field.id !== id),
     });
   };
-
-  /*   const clearForm = () => {
-    const newState = state.formFields.map((obj) => {
-      return { ...obj, value: "" };
-    });
-    setState({
-      ...state,
-      formFields: [...newState],
-    });
-  }; */
 
   return (
     <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-auto">
@@ -185,6 +201,7 @@ const ReactForm = (props: Props) => {
           <option value="number">Number</option>
           <option value="date">Date</option>
           <option value="time">Time</option>
+          <option value="dropdown">Dropdown</option>
         </select>
         <button
           className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
