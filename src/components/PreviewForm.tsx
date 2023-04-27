@@ -42,6 +42,17 @@ const PreviewForm = (props: Props) => {
             value={fieldValue[inputIndex].value}
             options={field.options}
             handleChangeCB={handleChange}
+            multiple={false}
+          />
+        );
+      case "multiselect":
+        return (
+          <LabelledDropdown
+            id={field.id}
+            value={fieldValue[inputIndex].value}
+            options={field.options}
+            handleChangeCB={handleChange}
+            multiple={true}
           />
         );
     }
@@ -64,11 +75,15 @@ const PreviewForm = (props: Props) => {
     setFieldValue(
       fieldValue.map((field) => {
         if (field.id === id) {
-          return { ...field, value };
+          if (field.kind === "multiselect") {            
+            return { ...field, value: value.split(",") };
+          }
+          return { ...field, value: value };
+        } else {
+          return field;
         }
-        return field;
       })
-    );
+    );    
   };
 
   const handleSubmit = () => {
@@ -88,7 +103,7 @@ const PreviewForm = (props: Props) => {
           <h1 className="text-xl font-semibold">{form.title}</h1>
           {submitted === false ? (
             <div className="flex flex-col items-center w-full gap-5">
-              <div className="flex flex-col items-center w-full gap-2">
+              <div className="flex flex-col w-full gap-2">
                 {form.formFields[inputIndex].label}
                 {renderField(form.formFields[inputIndex])}
               </div>

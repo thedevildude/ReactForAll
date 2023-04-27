@@ -15,6 +15,13 @@ const initialFormFields: formField[] = [
     options: ["High", "Medium", "Low"],
     value: "",
   },
+  {
+    kind: "multiselect",
+    id: 6,
+    label: "Your preference",
+    options: ["Sweet", "Sour", "Spicy"],
+    value: [],
+  },
 ];
 
 const FormList = () => {

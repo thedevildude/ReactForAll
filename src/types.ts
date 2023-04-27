@@ -22,5 +22,22 @@ type DropdownField = {
   value: string;
 };
 
-export type formField = TextField | DropdownField;
+type MultiSelect = {
+  id: number;
+  kind: "multiselect";
+  label: string;
+  options: string[];
+  value: string[];
+};
+
+type TextArea = {
+  id: number;
+  kind: "textarea";
+  label: string;
+  rows: number;
+  columns: number;
+  value: string;
+};
+
+export type formField = TextField | DropdownField | MultiSelect | TextArea;
 export type {formData};

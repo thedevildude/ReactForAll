@@ -4,6 +4,7 @@ import { Link, navigate } from "raviger";
 import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
 import { formData } from "../types";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
+import MultiSelectInput from "./FormEditorComponents/MultiSelectInput";
 
 interface Props {
   id: number;
@@ -38,7 +39,7 @@ const ReactForm = (props: Props) => {
     setState({
       ...state,
       formFields: state.formFields.map((field) => {
-        if (field.kind === "dropdown" && field.id === id) {
+        if ((field.kind === "dropdown" || field.kind === "multiselect") && field.id === id) {
           field.options[index] = value;
           return { ...field, options: field.options };
         }
@@ -111,14 +112,30 @@ const ReactForm = (props: Props) => {
       });
       setNewField({ label: "", type: "" });
       return;
-    }
+    } else if (newField.type === "multiselect") {
+      setState({
+        ...state,
+        formFields: [
+          ...state.formFields,
+          {
+            id: Number(new Date()),
+            kind: "multiselect",
+            label: newField.label,
+            options: ["Option 1", "Option 2"],
+            value: [],
+          },
+        ],
+      });
+      setNewField({ label: "", type: "" });
+      return;
+    } 
   };
 
   const addOption = (id: number) => {
     setState({
       ...state,
       formFields: state.formFields.map((field) => {
-        if (field.kind === "dropdown" && field.id === id) {
+        if ((field.kind === "dropdown" || field.kind === "multiselect") && field.id === id) {
           field.options.push(`Option ${field.options.length + 1}`);
           return { ...field, options: field.options };
         }
@@ -130,7 +147,7 @@ const ReactForm = (props: Props) => {
     setState({
       ...state,
       formFields: state.formFields.map((field) => {
-        if (field.kind === "dropdown" && field.id === id) {
+        if ((field.kind === "dropdown" || field.kind === "multiselect") && field.id === id) {
           field.options.splice(index, 1);
           return { ...field, options: field.options };
         }
@@ -158,8 +175,8 @@ const ReactForm = (props: Props) => {
       />
       <div className="flex flex-col gap-4 pt-4">
         {state.formFields.map((field) => {
-          return field.kind === "text" ? (
-            <LabelledInput
+          if (field.kind === "text") {
+            return <LabelledInput
               key={field.id}
               id={field.id}
               value={field.label}
@@ -167,8 +184,8 @@ const ReactForm = (props: Props) => {
               removeFieldCB={removeField}
               handleChangeCB={handleChange}
             />
-          ) : (
-            <DropdownInput
+           } else if (field.kind === "dropdown") {
+            return <DropdownInput
               id={field.id}
               key={field.id}
               kind={field.kind}
@@ -180,8 +197,21 @@ const ReactForm = (props: Props) => {
               addOptionCB={addOption}
               removeOptionCB={removeOption}
             />
-          );
-        })}
+          } else if (field.kind === "multiselect") {
+            return <MultiSelectInput
+              id={field.id}
+              key={field.id}
+              kind={field.kind}
+              value={field.label}
+              options={field.options}
+              handleChangeCB={handleChange}
+              handleOptionChangeCB={handleOptionChange}
+              removeFieldCB={removeField}
+              addOptionCB={addOption}
+              removeOptionCB={removeOption}
+            />
+          } return null;
+          })}
       </div>
       <div className="flex flex-col gap-4 items-center">
         <input
@@ -202,6 +232,7 @@ const ReactForm = (props: Props) => {
           <option value="date">Date</option>
           <option value="time">Time</option>
           <option value="dropdown">Dropdown</option>
+          <option value="multiselect">Multi Select</option>
         </select>
         <button
           className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
