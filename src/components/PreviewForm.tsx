@@ -122,32 +122,33 @@ const PreviewForm = (props: Props) => {
                 {form.formFields[inputIndex].label}
                 {renderField(form.formFields[inputIndex])}
               </div>
-              {inputIndex === 0 ? (
-                ""
-              ) : (
-                <button
-                  className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
-                  onClick={(e) => subtractInputIndex(e)}
-                >
-                  Previous Question
-                </button>
-              )}
-              {inputIndex === form.formFields.length - 1 &&
-              inputIndex !== -1 ? (
-                <button
-                  className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
-                  onClick={handleSubmit}
-                >
-                  Submit
-                </button>
-              ) : (
-                <button
-                  className="text-red-600 fill-blue-500 hover:scale-110 hover:fill-blue-800"
-                  onClick={(e) => addInputIndex(e)}
-                >
-                  Next Question
-                </button>
-              )}
+              <div className="flex flex-col gap-2 w-full">
+                {inputIndex === 0 ? (
+                  ""
+                ) : (
+                  <button
+                    className="w-full p-2 bg-gray-200 hover:scale-110 hover:bg-gray-300 transition-all duration-100"
+                    onClick={(e) => subtractInputIndex(e)}
+                  >
+                    Previous Question
+                  </button>
+                )}
+                {inputIndex === form.formFields.length - 1 ? (
+                  <button
+                    className="w-full p-2 bg-gray-200 hover:scale-110 hover:bg-gray-300 transition-all duration-100"
+                    onClick={handleSubmit}
+                  >
+                    Submit
+                  </button>
+                ) : (
+                  <button
+                    className="w-full p-2 bg-gray-200 hover:scale-110 hover:bg-gray-300 transition-all duration-100"
+                    onClick={(e) => addInputIndex(e)}
+                  >
+                    Next Question
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="flex flex-col gap-5">
