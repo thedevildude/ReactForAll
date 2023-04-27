@@ -221,6 +221,7 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     type={field.type}
                     handleChangeCB={handleChange}
+                    removeFieldCB={removeField}
                   />
                 );
               } else if (field.kind === "dropdown") {
