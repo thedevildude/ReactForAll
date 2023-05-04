@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import LabelledInput from "./InputComponents/LabelledInput";
 import { Link, navigate } from "raviger";
 import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
-import { formData } from "../types";
+import { formData, formField, textFieldTypes } from "../types";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
 import MultiSelectInput from "./FormEditorComponents/MultiSelectInput";
 import TextAreaInput from "./FormEditorComponents/TextAreaInput";
@@ -17,6 +17,78 @@ const saveformData = (currentState: formData) => {
     form.id === currentState.id ? currentState : form
   );
   saveLocalForms(updatedLocalForms);
+};
+
+const getNewField: (fieldType: string, fieldLabel: string) => formField = (
+  fieldType: string,
+  fieldLabel: string
+) => {
+  if (fieldType === "dropdown") {
+    return {
+      id: Number(new Date()),
+      kind: "dropdown",
+      label: fieldLabel,
+      options: ["Option 1", "Option 2"],
+      value: "",
+    };
+  } else if (fieldType === "multiselect") {
+    return {
+      id: Number(new Date()),
+      kind: "multiselect",
+      label: fieldLabel,
+      options: ["Option 1", "Option 2"],
+      value: [],
+    };
+  } else if (fieldType === "textarea") {
+    return {
+      id: Number(new Date()),
+      kind: "textarea",
+      label: fieldLabel,
+      rows: 4,
+      columns: 20,
+      value: "",
+    };
+  } else {
+    return {
+      id: Number(new Date()),
+      kind: "text",
+      type: fieldType as textFieldTypes,
+      label: fieldLabel,
+      value: "",
+    };
+  }
+};
+
+type RemoveAction = {
+  type: "REMOVE_FIELD";
+  id: number;
+};
+
+type AddAction = {
+  type: "ADD_FIELD";
+  kind: string;
+  label: string;
+};
+
+type FormAction = AddAction | RemoveAction;
+
+// Action Reducer
+const reducer = (state: formData, action: FormAction) => {
+  switch (action.type) {
+    case "ADD_FIELD":
+      const newField = getNewField(action.kind, action.label);
+      if (newField.label.length > 0) {
+        return {
+          ...state,
+          formFields: [...state.formFields, newField],
+        };
+      } else return state;
+    case "REMOVE_FIELD":
+      return {
+        ...state,
+        formFields: state.formFields.filter((field) => field.id !== action.id),
+      };
+  }
 };
 
 const ReactForm = (props: Props) => {
@@ -83,80 +155,8 @@ const ReactForm = (props: Props) => {
     };
   }, [state]);
 
-  const addField = () => {
-    if (newField.type === "dropdown") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            id: Number(new Date()),
-            kind: "dropdown",
-            label: newField.label,
-            options: ["Option 1", "Option 2"],
-            value: "",
-          },
-        ],
-      });
-      setNewField({ label: "", type: "" });
-      return;
-    } else if (
-      newField.type === "text" ||
-      newField.type === "number" ||
-      newField.type === "email" ||
-      newField.type === "date" ||
-      newField.type === "time" ||
-      newField.type === "tel"
-    ) {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            id: Number(new Date()),
-            kind: "text",
-            label: newField.label,
-            type: newField.type,
-            value: "",
-          },
-        ],
-      });
-      setNewField({ label: "", type: "" });
-      return;
-    } else if (newField.type === "multiselect") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            id: Number(new Date()),
-            kind: "multiselect",
-            label: newField.label,
-            options: ["Option 1", "Option 2"],
-            value: [],
-          },
-        ],
-      });
-      setNewField({ label: "", type: "" });
-      return;
-    } else if (newField.type === "textarea") {
-      setState({
-        ...state,
-        formFields: [
-          ...state.formFields,
-          {
-            id: Number(new Date()),
-            kind: "textarea",
-            label: newField.label,
-            rows: 4,
-            columns: 20,
-            value: "",
-          },
-        ],
-      });
-      setNewField({ label: "", type: "" });
-      return;
-    }
+  const dispatchAction = (action: FormAction) => {
+    setState((prevState) => reducer(prevState, action));
   };
 
   const addOption = (id: number) => {
@@ -189,12 +189,6 @@ const ReactForm = (props: Props) => {
       }),
     });
   };
-  const removeField = (id: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.filter((field) => field.id !== id),
-    });
-  };
 
   return (
     <div>
@@ -221,7 +215,7 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     type={field.type}
                     handleChangeCB={handleChange}
-                    removeFieldCB={removeField}
+                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
                   />
                 );
               } else if (field.kind === "dropdown") {
@@ -234,7 +228,7 @@ const ReactForm = (props: Props) => {
                     options={field.options}
                     handleChangeCB={handleChange}
                     handleOptionChangeCB={handleOptionChange}
-                    removeFieldCB={removeField}
+                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
                     addOptionCB={addOption}
                     removeOptionCB={removeOption}
                   />
@@ -249,7 +243,7 @@ const ReactForm = (props: Props) => {
                     options={field.options}
                     handleChangeCB={handleChange}
                     handleOptionChangeCB={handleOptionChange}
-                    removeFieldCB={removeField}
+                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
                     addOptionCB={addOption}
                     removeOptionCB={removeOption}
                   />
@@ -265,7 +259,7 @@ const ReactForm = (props: Props) => {
                     columns={field.columns}
                     handleChangeCB={handleChange}
                     handleOptionChangeCB={handleOptionChange}
-                    removeFieldCB={removeField}
+                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
                   />
                 );
               }
@@ -285,9 +279,13 @@ const ReactForm = (props: Props) => {
             <select
               className="w-full border-2 border-gray-200 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
               onChange={(e) =>
-                setNewField({ ...newField, type: e.target.value })
+                setNewField({
+                  ...newField,
+                  type: e.target.value as textFieldTypes,
+                })
               }
             >
+              <option value="">Select Field Type</option>
               <option value="text">Text</option>
               <option value="number">Number</option>
               <option value="date">Date</option>
@@ -298,7 +296,11 @@ const ReactForm = (props: Props) => {
             </select>
             <button
               className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-              onClick={addField}
+              onClick={_=>dispatchAction({
+                type: "ADD_FIELD",
+                kind: newField.type,
+                label: newField.label,
+              })}
             >
               Add Field
             </button>

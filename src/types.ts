@@ -4,7 +4,7 @@ type formData = {
   formFields: formField[];
 };
 
-type textFieldTypes = "text" | "email" | "number" | "date" | "tel" | "time";
+export type textFieldTypes = "text" | "email" | "number" | "date" | "tel" | "time";
 
 type TextField = {
   id: number;
