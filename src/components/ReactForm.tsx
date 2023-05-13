@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useReducer } from "react";
 import LabelledInput from "./InputComponents/LabelledInput";
 import { Link, navigate } from "raviger";
 import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
@@ -68,25 +68,158 @@ type AddAction = {
   type: "ADD_FIELD";
   kind: string;
   label: string;
+  callback: () => void;
 };
 
-type FormAction = AddAction | RemoveAction;
+type UpdateTitleAction = {
+  type: "UPDATE_TITLE";
+  title: string;
+};
+
+type AddOption = {
+  type: "ADD_OPTION";
+  id: number;
+};
+
+type RemoveOption = {
+  type: "REMOVE_OPTION";
+  id: number;
+  index: number;
+};
+
+type UpdateLabel = {
+  type: "UPDATE_LABEL";
+  id: number;
+  value: string;
+};
+
+type UpdateOption = {
+  type: "UPDATE_OPTION";
+  id: number;
+  index: number;
+  value: string;
+};
+
+type FormAction =
+  | AddAction
+  | RemoveAction
+  | UpdateTitleAction
+  | AddOption
+  | RemoveOption
+  | UpdateLabel
+  | UpdateOption;
 
 // Action Reducer
 const reducer = (state: formData, action: FormAction) => {
   switch (action.type) {
     case "ADD_FIELD":
       const newField = getNewField(action.kind, action.label);
+      action.callback();
       if (newField.label.length > 0) {
         return {
           ...state,
           formFields: [...state.formFields, newField],
         };
-      } else return state;
+      }
+      return state;
     case "REMOVE_FIELD":
       return {
         ...state,
         formFields: state.formFields.filter((field) => field.id !== action.id),
+      };
+    case "UPDATE_TITLE":
+      return {
+        ...state,
+        title: action.title,
+      };
+    case "ADD_OPTION":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (
+            (field.kind === "dropdown" || field.kind === "multiselect") &&
+            field.id === action.id
+          ) {
+            return {
+              ...field,
+              options: [...field.options, `Option ${field.options.length + 1}`],
+            };
+          }
+          return field;
+        }),
+      };
+    case "REMOVE_OPTION":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (
+            (field.kind === "dropdown" || field.kind === "multiselect") &&
+            field.id === action.id
+          ) {
+            const newOptions = field.options.filter(
+              (_, index) => index !== action.index
+            );
+            return { ...field, options: newOptions };
+          }
+          return field;
+        }),
+      };
+    case "UPDATE_LABEL":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (field.id === action.id) {
+            return { ...field, label: action.value };
+          }
+          return field;
+        }),
+      };
+    case "UPDATE_OPTION":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (
+            (field.kind === "dropdown" || field.kind === "multiselect") &&
+            field.id === action.id
+          ) {
+            field.options[action.index] = action.value;
+            return { ...field, options: field.options };
+          } else if (field.kind === "textarea" && field.id === action.id) {
+            if (action.index === 0) {
+              return { ...field, rows: Number(action.value) };
+            } else {
+              return { ...field, columns: Number(action.value) };
+            }
+          }
+          return field;
+        }),
+      };
+  }
+};
+
+type UpdateField = {
+  type: "UPDATE_FIELD";
+  label: string;
+};
+
+type UpdateKind = {
+  type: "UPDATE_KIND";
+  kind: string;
+};
+
+type FieldAction = UpdateField | UpdateKind;
+
+const fieldReducer = (state: { kind: string; label: string }, action: FieldAction) => {
+  switch (action.type) {
+    case "UPDATE_FIELD":
+      return {
+        ...state,
+        label: action.label,
+      };
+    case "UPDATE_KIND":
+      return {
+        ...state,
+        kind: action.kind,
       };
   }
 };
@@ -97,41 +230,10 @@ const ReactForm = (props: Props) => {
     const form = getForm(props.id);
     return form;
   };
+  const [state, dispatch] = useReducer(reducer, null, () => initialState());
+  const [newField, fieldDispatch] = useReducer(fieldReducer, { kind: "", label: ""});
+
   const titleRef = useRef<HTMLInputElement>(null);
-  const handleChange = (value: string, id: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.map((field) => {
-        if (field.id === id) {
-          return { ...field, label: value };
-        }
-        return field;
-      }),
-    });
-  };
-  const handleOptionChange = (value: string, id: number, index: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.map((field) => {
-        if (
-          (field.kind === "dropdown" || field.kind === "multiselect") &&
-          field.id === id
-        ) {
-          field.options[index] = value;
-          return { ...field, options: field.options };
-        } else if (field.kind === "textarea" && field.id === id) {
-          if (index === 0) {
-            return { ...field, rows: Number(value) };
-          } else {
-            return { ...field, columns: Number(value) };
-          }
-        }
-        return field;
-      }),
-    });
-  };
-  const [state, setState] = useState(() => initialState());
-  const [newField, setNewField] = useState({ label: "", type: "" });
 
   useEffect(() => {
     const oldTitle = document.title;
@@ -155,41 +257,6 @@ const ReactForm = (props: Props) => {
     };
   }, [state]);
 
-  const dispatchAction = (action: FormAction) => {
-    setState((prevState) => reducer(prevState, action));
-  };
-
-  const addOption = (id: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.map((field) => {
-        if (
-          (field.kind === "dropdown" || field.kind === "multiselect") &&
-          field.id === id
-        ) {
-          field.options.push(`Option ${field.options.length + 1}`);
-          return { ...field, options: field.options };
-        }
-        return field;
-      }),
-    });
-  };
-  const removeOption = (id: number, index: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.map((field) => {
-        if (
-          (field.kind === "dropdown" || field.kind === "multiselect") &&
-          field.id === id
-        ) {
-          field.options.splice(index, 1);
-          return { ...field, options: field.options };
-        }
-        return field;
-      }),
-    });
-  };
-
   return (
     <div>
       {loading === true ? (
@@ -201,7 +268,7 @@ const ReactForm = (props: Props) => {
             value={state.title}
             className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             onChange={(e) => {
-              setState({ ...state, title: e.target.value });
+              dispatch({ type: "UPDATE_TITLE", title: e.target.value });
             }}
             ref={titleRef}
           />
@@ -214,8 +281,12 @@ const ReactForm = (props: Props) => {
                     id={field.id}
                     value={field.label}
                     type={field.type}
-                    handleChangeCB={handleChange}
-                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
+                    handleChangeCB={(value, id) =>
+                      dispatch({ type: "UPDATE_LABEL", id, value })
+                    }
+                    removeFieldCB={(id) =>
+                      dispatch({ type: "REMOVE_FIELD", id: id })
+                    }
                   />
                 );
               } else if (field.kind === "dropdown") {
@@ -226,11 +297,25 @@ const ReactForm = (props: Props) => {
                     kind={field.kind}
                     value={field.label}
                     options={field.options}
-                    handleChangeCB={handleChange}
-                    handleOptionChangeCB={handleOptionChange}
-                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
-                    addOptionCB={addOption}
-                    removeOptionCB={removeOption}
+                    handleChangeCB={(value, id) =>
+                      dispatch({ type: "UPDATE_LABEL", id, value })
+                    }
+                    handleOptionChangeCB={(value, id, index) =>
+                      dispatch({ type: "UPDATE_OPTION", id, index, value })
+                    }
+                    removeFieldCB={(id) =>
+                      dispatch({ type: "REMOVE_FIELD", id: id })
+                    }
+                    addOptionCB={() =>
+                      dispatch({ type: "ADD_OPTION", id: field.id })
+                    }
+                    removeOptionCB={(id, index) =>
+                      dispatch({
+                        type: "REMOVE_OPTION",
+                        id: id,
+                        index: index,
+                      })
+                    }
                   />
                 );
               } else if (field.kind === "multiselect") {
@@ -241,11 +326,25 @@ const ReactForm = (props: Props) => {
                     kind={field.kind}
                     value={field.label}
                     options={field.options}
-                    handleChangeCB={handleChange}
-                    handleOptionChangeCB={handleOptionChange}
-                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
-                    addOptionCB={addOption}
-                    removeOptionCB={removeOption}
+                    handleChangeCB={(value, id) =>
+                      dispatch({ type: "UPDATE_LABEL", id, value })
+                    }
+                    handleOptionChangeCB={(value, id, index) =>
+                      dispatch({ type: "UPDATE_OPTION", id, index, value })
+                    }
+                    removeFieldCB={() =>
+                      dispatch({ type: "REMOVE_FIELD", id: field.id })
+                    }
+                    addOptionCB={() =>
+                      dispatch({ type: "ADD_OPTION", id: field.id })
+                    }
+                    removeOptionCB={(id, index) =>
+                      dispatch({
+                        type: "REMOVE_OPTION",
+                        id: id,
+                        index: index,
+                      })
+                    }
                   />
                 );
               } else if (field.kind === "textarea") {
@@ -257,9 +356,15 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     rows={field.rows}
                     columns={field.columns}
-                    handleChangeCB={handleChange}
-                    handleOptionChangeCB={handleOptionChange}
-                    removeFieldCB={id => dispatchAction({type: "REMOVE_FIELD", id: id})}
+                    handleChangeCB={(value, id) =>
+                      dispatch({ type: "UPDATE_LABEL", id, value })
+                    }
+                    handleOptionChangeCB={(value, id, index) =>
+                      dispatch({ type: "UPDATE_OPTION", id, index, value })
+                    }
+                    removeFieldCB={(id) =>
+                      dispatch({ type: "REMOVE_FIELD", id: id })
+                    }
                   />
                 );
               }
@@ -273,16 +378,13 @@ const ReactForm = (props: Props) => {
               placeholder="New Field Label"
               className="border-2 border-gray-200 rounded-lg p-2 mt-4 w-full focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
               onChange={(e) => {
-                setNewField({ ...newField, label: e.target.value });
+                fieldDispatch({ type: "UPDATE_FIELD", label: e.target.value });
               }}
             />
             <select
               className="w-full border-2 border-gray-200 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
               onChange={(e) =>
-                setNewField({
-                  ...newField,
-                  type: e.target.value as textFieldTypes,
-                })
+                fieldDispatch({ type: "UPDATE_KIND", kind: e.target.value })
               }
             >
               <option value="">Select Field Type</option>
@@ -296,11 +398,14 @@ const ReactForm = (props: Props) => {
             </select>
             <button
               className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-              onClick={_=>dispatchAction({
-                type: "ADD_FIELD",
-                kind: newField.type,
-                label: newField.label,
-              })}
+              onClick={(_) =>
+                dispatch({
+                  type: "ADD_FIELD",
+                  kind: newField.kind,
+                  label: newField.label,
+                  callback: () => fieldDispatch({ type: "UPDATE_FIELD", label: "" }),
+                })
+              }
             >
               Add Field
             </button>
@@ -318,12 +423,6 @@ const ReactForm = (props: Props) => {
             >
               Close Form
             </Link>
-            {/* <button
-              className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
-              onClick={clearForm}
-            >
-              Clear
-            </button> */}
           </div>
         </div>
       )}
