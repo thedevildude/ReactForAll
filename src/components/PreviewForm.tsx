@@ -1,5 +1,5 @@
-import { useState, useEffect, ReactNode } from "react";
-import { Link, navigate } from "raviger";
+import { ReactNode, useReducer } from "react";
+import { Link } from "raviger";
 import { getForm } from "../utils/helpers";
 import { formData, formField } from "../types";
 import LabelledDropdown from "./InputComponents/LabelledDropdown";
@@ -9,25 +9,64 @@ interface Props {
   formId: number;
 }
 
-const PreviewForm = (props: Props) => {
-  const [loading, setLoading] = useState(true);
-  const [text, setText] = useState("Loading...");
-  const [form, setForm] = useState<formData>(getForm(props.formId));
-  const [fieldValue, setFieldValue] = useState<formField[]>([]);
-  const [submitted, setSubmitted] = useState(false);
-  const [inputIndex, setInputIndex] = useState(-1);
+type UpdateFormField = {
+  type: "UPDATE_FORM_FIELD";
+  id: number;
+  value: string;
+};
 
-  useEffect(() => {
-    if (form === null || form === undefined) {
-      return navigate("/");
-    }
-    if (form.formFields.length === 0) {
-      return setText("No fields in form");
-    }
-    setFieldValue(form.formFields);
-    setInputIndex(0);
-    setLoading(false);
-  }, [form]);
+type Next = {
+  type: "NEXT";
+};
+
+type Previous = {
+  type: "PREVIOUS";
+};
+
+type Submit = {
+  type: "SUBMIT";
+};
+
+type formAction = UpdateFormField;
+type inputAction = Next | Previous | Submit;
+
+const formReducer = (state: formData, action: formAction) => {
+  switch (action.type) {
+    case "UPDATE_FORM_FIELD":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (field.id === action.id) {
+            if (field.kind === "multiselect") {
+              return { ...field, value: action.value.split(",") };
+            }
+            return { ...field, value: action.value };
+          } else {
+            return field;
+          }
+        }),
+      };
+    default:
+      return state;
+  }
+};
+
+const reducer = (state: number, action: inputAction) => {
+  switch (action.type) {
+    case "NEXT":
+      return state + 1;
+    case "PREVIOUS":
+      return state - 1;
+    case "SUBMIT":
+      return -1;
+    default:
+      return state;
+  }
+};
+
+const PreviewForm = (props: Props) => {
+  const [form, dispatch] = useReducer(formReducer, props.formId, getForm);
+  const [inputIndex, inputDispatch] = useReducer(reducer, 0);
 
   const renderField: (field: formField) => ReactNode = (field) => {
     switch (field.kind) {
@@ -36,17 +75,25 @@ const PreviewForm = (props: Props) => {
           <input
             className="border-2 border-gray-200 rounded-lg p-2 w-full focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
             type={field.type}
-            value={fieldValue[inputIndex].value}
-            onChange={(e) => handleChange(e.target.value, field.id)}
+            value={field.value}
+            onChange={(e) =>
+              dispatch({
+                type: "UPDATE_FORM_FIELD",
+                id: field.id,
+                value: e.target.value,
+              })
+            }
           />
         );
       case "dropdown":
         return (
           <LabelledDropdown
             id={field.id}
-            value={fieldValue[inputIndex].value}
+            value={field.value}
             options={field.options}
-            handleChangeCB={handleChange}
+            handleChangeCB={(value, id) =>
+              dispatch({ type: "UPDATE_FORM_FIELD", id, value })
+            }
             multiple={false}
           />
         );
@@ -54,9 +101,11 @@ const PreviewForm = (props: Props) => {
         return (
           <LabelledDropdown
             id={field.id}
-            value={fieldValue[inputIndex].value}
+            value={field.value}
             options={field.options}
-            handleChangeCB={handleChange}
+            handleChangeCB={(value, id) =>
+              dispatch({ type: "UPDATE_FORM_FIELD", id, value })
+            }
             multiple={true}
           />
         );
@@ -64,59 +113,33 @@ const PreviewForm = (props: Props) => {
         return (
           <LabelledTextArea
             id={field.id}
-            value={fieldValue[inputIndex].value}
+            value={field.value}
             rows={field.rows}
             columns={field.columns}
-            handleChangeCB={handleChange}
+            handleChangeCB={(value, id) =>
+              dispatch({ type: "UPDATE_FORM_FIELD", id, value })
+            }
           />
         );
     }
   };
-  const addInputIndex = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    if (inputIndex !== form.formFields.length - 1 && inputIndex !== -1) {
-      setInputIndex(inputIndex + 1);
-    }
-  };
-  const subtractInputIndex = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    if (inputIndex !== 0 && inputIndex !== -1) {
-      setInputIndex(inputIndex - 1);
-    }
-  };
-  const handleChange: (value: string, id: number) => void = (value, id) => {
-    setFieldValue(
-      fieldValue.map((field) => {
-        if (field.id === id) {
-          if (field.kind === "multiselect") {
-            return { ...field, value: value.split(",") };
-          }
-          return { ...field, value: value };
-        } else {
-          return field;
-        }
-      })
-    );
-  };
 
-  const handleSubmit = () => {
-    setForm({
-      ...form,
-      formFields: fieldValue,
-    });
-    setSubmitted(true);
-    console.log(form);
-  };
   return (
     <div>
-      {loading === true ? (
-        <div>{text}</div>
+      {form === undefined ? (
+        <div className="flex flex-col items-center gap-5">
+          <p className="text-xl font-semibold">Form Not Found</p>
+          <Link
+            className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
+            href="/"
+          >
+            Close Form
+          </Link>
+        </div>
       ) : (
         <div className="flex flex-col items-center gap-5 w-full">
           <h1 className="text-xl font-semibold">{form.title}</h1>
-          {submitted === false ? (
+          {inputIndex !== -1 ? (
             <div className="flex flex-col items-center w-full gap-5">
               <div className="flex flex-col w-full gap-2">
                 {form.formFields[inputIndex].label}
@@ -128,7 +151,7 @@ const PreviewForm = (props: Props) => {
                 ) : (
                   <button
                     className="w-full p-2 bg-gray-200 hover:scale-110 hover:bg-gray-300 transition-all duration-100"
-                    onClick={(e) => subtractInputIndex(e)}
+                    onClick={() => inputDispatch({ type: "PREVIOUS" })}
                   >
                     Previous Question
                   </button>
@@ -136,14 +159,14 @@ const PreviewForm = (props: Props) => {
                 {inputIndex === form.formFields.length - 1 ? (
                   <button
                     className="w-full p-2 bg-gray-200 hover:scale-110 hover:bg-gray-300 transition-all duration-100"
-                    onClick={handleSubmit}
+                    onClick={() => inputDispatch({ type: "SUBMIT" })}
                   >
                     Submit
                   </button>
                 ) : (
                   <button
                     className="w-full p-2 bg-gray-200 hover:scale-110 hover:bg-gray-300 transition-all duration-100"
-                    onClick={(e) => addInputIndex(e)}
+                    onClick={() => inputDispatch({ type: "NEXT" })}
                   >
                     Next Question
                   </button>

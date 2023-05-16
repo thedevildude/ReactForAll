@@ -13,15 +13,22 @@ const LabelledDropdown = (props: Props) => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-
   const handleOptionSelect = (option: string) => {
+    if (option.length === 0) return;
+    let selectedOptions = props.value as string[];
     if (selectedOptions.includes(option)) {
-      setSelectedOptions(selectedOptions.filter((item) => item !== option));
+      selectedOptions = selectedOptions.filter(
+        (selectedOption) => selectedOption !== option
+      );
     } else {
-      setSelectedOptions([...selectedOptions, option]);
+      selectedOptions.push(option);
     }
-    props.handleChangeCB(selectedOptions.join(", "), props.id);
+    props.handleChangeCB(selectedOptions.join(","), props.id);
+  };
+
+  const handleSingleSelect = (value: string) => {
+    if (value === "") return;
+    props.handleChangeCB(value, props.id);
   };
 
   return (
@@ -30,7 +37,7 @@ const LabelledDropdown = (props: Props) => {
         <select
           value={props.value}
           className="border-2 border-gray-200 w-full rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-          onChange={(e) => props.handleChangeCB(e.target.value, props.id)}
+          onChange={(e) => handleSingleSelect(e.target.value)}
         >
           <option value="">Select an option</option>
           {props.options.map((option, index) => (
@@ -53,15 +60,13 @@ const LabelledDropdown = (props: Props) => {
                 <div
                   key={index}
                   className="flex gap-5 items-center p-2 border border-gray-200 hover:bg-gray-200"
-                  onClick={() => {
-                    handleOptionSelect(option);
-                  }}
                 >
                   <input
                     value={option}
                     className="h-5 w-5 focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:bg-gray-200 hover:bg-gray-200"
                     type="checkbox"
-                    checked={selectedOptions.includes(option)}
+                    checked={props.value.includes(option)}
+                    onChange={() => handleOptionSelect(option)}
                   />
                   <p className="flex-1">{option}</p>
                 </div>
