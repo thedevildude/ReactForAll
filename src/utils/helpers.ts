@@ -1,4 +1,4 @@
-import { formData } from "../types";
+import { formData } from "../types/formTypes";
 
 const getLocalForms: () => formData[] = () => {
   const savedFormsJSON = localStorage.getItem("savedForms");

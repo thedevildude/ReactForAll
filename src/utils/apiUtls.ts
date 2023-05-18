@@ -1,4 +1,4 @@
-import { Form } from "../types";
+import { Form } from "../types/formTypes";
 
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
 
@@ -45,10 +45,13 @@ export const request = async (
   }
 };
 
+export const login = async (username: string, password: string) => {
+  return await request("auth-token/", "POST", { username, password });
+}
+export const me = async () => {
+  return await request("users/me/", "GET", {});
+}
 export const createForm = async (form: Form) => {
   return await request("forms/", "POST", form);
 };
 
-export const login = async (username: string, password: string) => {
-  return await request("auth-token/", "POST", { username, password });
-}

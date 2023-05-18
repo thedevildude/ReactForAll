@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useQueryParams } from "raviger";
-import { Form } from "../types";
+import { Form } from "../types/formTypes";
 import { getLocalForms, saveLocalForms } from "../utils/helpers";
 import Modal from "./common/Modal";
 import CreateForm from "./CreateForm";

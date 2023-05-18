@@ -5,6 +5,7 @@ import ReactForm from "../components/ReactForm";
 import Home from "../components/Home";
 import PreviewForm from "../components/PreviewForm";
 import Login from "../Login";
+import { User } from "../types/userTypes";
 
 const routes = {
   "/": () => <Home />,
@@ -17,7 +18,7 @@ const routes = {
   "*": () => <Redirect to="/" />,
 };
 
-export default function AppRouter() {
+export default function AppRouter(props: { currentUser: User }) {
   let routeResult = useRoutes(routes);
-  return <AppContainer>{routeResult}</AppContainer>;
+  return <AppContainer currentUser={props.currentUser}>{routeResult}</AppContainer>;
 }

@@ -1,7 +1,7 @@
 import { ReactNode, useReducer } from "react";
 import { Link } from "raviger";
 import { getForm } from "../utils/helpers";
-import { formData, formField } from "../types";
+import { formData, formField } from "../types/formTypes";
 import LabelledDropdown from "./InputComponents/LabelledDropdown";
 import LabelledTextArea from "./InputComponents/LabelledTextArea";
 

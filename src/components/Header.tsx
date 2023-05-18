@@ -1,7 +1,8 @@
 import { ActiveLink } from "raviger";
 import logo from "../logo.svg";
+import { User } from "../types/userTypes";
 
-const Header = () => {
+const Header = (props: { currentUser: User }) => {
   return (
     <div className="flex gap-2 items-center">
       <img
@@ -14,7 +15,9 @@ const Header = () => {
         {[
           { page: "Home", url: "/" },
           { page: "About", url: "/about" },
-          { page: "Login", url: "/login" },
+          ...(props.currentUser
+            ? [{ page: "Logout", url: "/logout" }]
+            : [{ page: "Login", url: "/login" }]),
         ].map((link) => (
           <ActiveLink
             key={link.url}

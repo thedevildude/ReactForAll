@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Errors, Form, validateForm } from "../types";
+import { Errors, Form, validateForm } from "../types/formTypes";
 import { navigate } from "raviger";
 import { createForm } from "../utils/apiUtls";
 

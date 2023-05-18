@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useReducer } from "react";
 import LabelledInput from "./InputComponents/LabelledInput";
 import { Link } from "raviger";
 import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
-import { formData, formField, textFieldTypes } from "../types";
+import { formData, formField, textFieldTypes } from "../types/formTypes";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
 import MultiSelectInput from "./FormEditorComponents/MultiSelectInput";
 import TextAreaInput from "./FormEditorComponents/TextAreaInput";
