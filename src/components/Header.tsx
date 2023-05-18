@@ -15,18 +15,32 @@ const Header = (props: { currentUser: User }) => {
         {[
           { page: "Home", url: "/" },
           { page: "About", url: "/about" },
-          ...(props.currentUser
-            ? [{ page: "Logout", url: "/logout" }]
-            : [{ page: "Login", url: "/login" }]),
+          ...(props.currentUser?.username?.length > 0
+            ? [{ page: "Logout", onClick: () => {
+              localStorage.removeItem("token");
+              window.location.reload();
+            } }]
+            : [{ page: "Login", url: "/login" }]
+          ),
         ].map((link) => (
+          link.url ? (
           <ActiveLink
-            key={link.url}
+            key={link.page}
             href={link.url}
             className="text-gray-800 p-2 m-2 uppercase font-medium active:text-blue-600"
             exactActiveClass="text-blue-600"
           >
             {link.page}
           </ActiveLink>
+        ) : (
+          <button
+            key={link.page}
+            onClick={link.onClick}
+            className="text-gray-800 p-2 m-2 uppercase font-medium active:text-blue-600"
+          >
+            {link.page}
+          </button>
+        )
         ))}
       </div>
     </div>

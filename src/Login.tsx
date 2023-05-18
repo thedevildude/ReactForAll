@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { login } from "./utils/apiUtls";
 import { navigate } from "raviger";
 
@@ -16,6 +16,13 @@ const Login = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/");
+    }
+  }, []);
   return (
     <div className="w-full max-w-lg divide-y divide-gray-200">
       <h1 className="text-2xl my-2 text-gray-700">Login</h1>

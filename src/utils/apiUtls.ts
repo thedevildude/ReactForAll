@@ -22,8 +22,12 @@ export const request = async (
     url = `${API_BASE_URL}${endpoint}`;
     payload = data ? JSON.stringify(data) : "";
   }
+  // Basic authentication
+  // const auth = "Basic " + window.btoa("devdeep:DDss..@#1234");
 
-  const auth = "Basic " + window.btoa("devdeep:DDss..@#1234");
+  // Token authentication
+  const token = localStorage.getItem("token");
+  const auth = token? "Token " + token : "";
   try {
     const response = await fetch(url, {
       method: method,
@@ -31,7 +35,7 @@ export const request = async (
         "Content-Type": "application/json",
         Authorization: auth,
       },
-      body: payload,
+      body: (method !== "GET") ? payload : null,
     });
     if (response.ok) {
       const json = await response.json();
@@ -49,7 +53,7 @@ export const login = async (username: string, password: string) => {
   return await request("auth-token/", "POST", { username, password });
 }
 export const me = async () => {
-  return await request("users/me/", "GET", {});
+  return await request("users/me/", "GET");
 }
 export const createForm = async (form: Form) => {
   return await request("forms/", "POST", form);
