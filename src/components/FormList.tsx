@@ -1,9 +1,16 @@
-import React, { useState } from "react";
-import { Link, navigate, useQueryParams } from "raviger";
-import { formField } from "../types";
+import React, { useState, useEffect } from "react";
+import { Link, useQueryParams } from "raviger";
+import { Form } from "../types";
 import { getLocalForms, saveLocalForms } from "../utils/helpers";
+import Modal from "./common/Modal";
+import CreateForm from "./CreateForm";
 
-const initialFormFields: formField[] = [
+const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
+  const response = await fetch("https://tsapi.coronasafe.live/api/mock_test/");
+  const jsonData = await response.json();
+  setFormsCB(jsonData);
+}
+/* const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "First Name", type: "text", value: "" },
   { kind: "text", id: 2, label: "Last Name", type: "text", value: "" },
   { kind: "text", id: 3, label: "Email", type: "email", value: "" },
@@ -29,12 +36,17 @@ const initialFormFields: formField[] = [
     options: ["Sweet", "Sour", "Spicy"],
     value: [],
   },
-];
+]; */
 
 const FormList = () => {
-  const [forms, setForms] = useState(getLocalForms());
+  const [forms, setForms] = useState<Form[]>(getLocalForms());
+  const [newForm, SetNewForm] = useState(false);
 
-  const newForm: () => void = () => {
+  useEffect(() => {
+    fetchForms(setForms);
+  }, []);
+
+  /* const newForm: () => void = () => {
     const localForms = getLocalForms();
     const newForm = {
       id: Number(new Date()),
@@ -44,7 +56,7 @@ const FormList = () => {
     saveLocalForms([...localForms, newForm]);
     setForms(getLocalForms());
     navigate(`/forms/${newForm.id}`);
-  };
+  }; */
 
   const deleteForm: (id: number) => void = (id) => {
     const localForms = getLocalForms();
@@ -87,9 +99,9 @@ const FormList = () => {
               >
                 <div className="flex flex-col gap-2">
                   <p>{form.title}</p>
-                  <p className="text-sm text-gray-500">
+                  {/* <p className="text-sm text-gray-500">
                     {form.formFields.length} questions
-                  </p>
+                  </p> */}
                 </div>
                 <div>
                   <div className="flex gap-2">
@@ -119,7 +131,7 @@ const FormList = () => {
                     </Link>
                     <button
                       className="bg-amber-500 hover:bg-amber-700 flex items-center p-3 fill-white rounded-lg"
-                      onClick={() => deleteForm(form.id)}
+                      onClick={() => form.id && deleteForm(form.id)}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -138,11 +150,14 @@ const FormList = () => {
       <div className="p-4">
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
-          onClick={newForm}
+          onClick={_ => SetNewForm(true)}
         >
           New Form
         </button>
       </div>
+      <Modal open={newForm} closeCB={() => SetNewForm(false)}>
+        <CreateForm />
+      </Modal>
     </div>
   );
 };

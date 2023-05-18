@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useReducer } from "react";
 import LabelledInput from "./InputComponents/LabelledInput";
-import { Link, navigate } from "raviger";
+import { Link } from "raviger";
 import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
 import { formData, formField, textFieldTypes } from "../types";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
@@ -246,7 +246,7 @@ const ReactForm = (props: Props) => {
 
   useEffect(() => {
     if (state === null || state === undefined) {
-      return navigate("/");
+      return;
     }
     setLoading(false);
     let timeout = setTimeout(() => {
@@ -260,7 +260,7 @@ const ReactForm = (props: Props) => {
   return (
     <div>
       {loading === true ? (
-        <div>Loading...</div>
+        <div>Form Not Found</div>
       ) : (
         <div className="flex flex-col gap-2 p-4 divide-y-2 divide-dotted max-h-96 overflow-y-auto">
           <input
