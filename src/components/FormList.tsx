@@ -4,11 +4,16 @@ import { Form } from "../types/formTypes";
 import { getLocalForms, saveLocalForms } from "../utils/helpers";
 import Modal from "./common/Modal";
 import CreateForm from "./CreateForm";
+import { listForm } from "../utils/apiUtls";
+import { Pagination } from "../types/common";
 
 const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
-  const response = await fetch("https://tsapi.coronasafe.live/api/mock_test/");
-  const jsonData = await response.json();
-  setFormsCB(jsonData);
+  try {
+    const data: Pagination<Form> = await listForm({ offset: 0, limit: 2});
+    setFormsCB(data.results);
+  } catch (error) {
+    console.error(error);
+  }
 }
 /* const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "First Name", type: "text", value: "" },
@@ -39,8 +44,8 @@ const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
 ]; */
 
 const FormList = () => {
-  const [forms, setForms] = useState<Form[]>(getLocalForms());
-  const [newForm, SetNewForm] = useState(false);
+  const [forms, setForms] = useState<Form[]>([]);
+  const [newForm, setNewForm] = useState(false);
 
   useEffect(() => {
     fetchForms(setForms);
@@ -150,12 +155,12 @@ const FormList = () => {
       <div className="p-4">
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
-          onClick={_ => SetNewForm(true)}
+          onClick={_ => setNewForm(true)}
         >
           New Form
         </button>
       </div>
-      <Modal open={newForm} closeCB={() => SetNewForm(false)}>
+      <Modal open={newForm} closeCB={() => setNewForm(false)}>
         <CreateForm />
       </Modal>
     </div>
