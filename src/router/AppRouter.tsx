@@ -4,7 +4,7 @@ import AppContainer from "../components/AppContainer";
 import ReactForm from "../components/ReactForm";
 import Home from "../components/Home";
 import PreviewForm from "../components/PreviewForm";
-import Login from "../Login";
+import Login from "../components/Login";
 import { User } from "../types/userTypes";
 
 const routes = {

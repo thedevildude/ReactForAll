@@ -14,34 +14,7 @@ const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
   } catch (error) {
     console.error(error);
   }
-}
-/* const initialFormFields: formField[] = [
-  { kind: "text", id: 1, label: "First Name", type: "text", value: "" },
-  { kind: "text", id: 2, label: "Last Name", type: "text", value: "" },
-  { kind: "text", id: 3, label: "Email", type: "email", value: "" },
-  {
-    kind: "textarea",
-    id: 4,
-    label: "Write a bio",
-    rows: 4,
-    columns: 40,
-    value: "",
-  },
-  {
-    kind: "dropdown",
-    id: 5,
-    label: "Select a priority",
-    options: ["High", "Medium", "Low"],
-    value: "",
-  },
-  {
-    kind: "multiselect",
-    id: 6,
-    label: "Your preference",
-    options: ["Sweet", "Sour", "Spicy"],
-    value: [],
-  },
-]; */
+};
 
 const FormList = () => {
   const [forms, setForms] = useState<Form[]>([]);
@@ -50,18 +23,6 @@ const FormList = () => {
   useEffect(() => {
     fetchForms(setForms);
   }, []);
-
-  /* const newForm: () => void = () => {
-    const localForms = getLocalForms();
-    const newForm = {
-      id: Number(new Date()),
-      title: "Untitled Form",
-      formFields: initialFormFields,
-    };
-    saveLocalForms([...localForms, newForm]);
-    setForms(getLocalForms());
-    navigate(`/forms/${newForm.id}`);
-  }; */
 
   const deleteForm: (id: number) => void = (id) => {
     const localForms = getLocalForms();

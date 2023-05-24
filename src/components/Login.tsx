@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { login } from "./utils/apiUtls";
+import { login } from "../utils/apiUtls";
 import { navigate } from "raviger";
 
 const Login = () => {
