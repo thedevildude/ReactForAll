@@ -5,7 +5,12 @@ import { formData, formField } from "../types/formTypes";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
 import MultiSelectInput from "./FormEditorComponents/MultiSelectInput";
 import TextAreaInput from "./FormEditorComponents/TextAreaInput";
-import { addFormField, getForm, getFormFields } from "../utils/apiUtls";
+import {
+  addFormField,
+  deleteFormField,
+  getForm,
+  getFormFields,
+} from "../utils/apiUtls";
 import { Pagination } from "../types/common";
 import { getNewField } from "../utils/helpers";
 
@@ -88,6 +93,11 @@ const reducer = (state: formData, action: FormAction) => {
         ...state,
         formFields: [...state.formFields, action.newField],
       };
+    case "REMOVE_FIELD":
+      return {
+        ...state,
+        formFields: state.formFields.filter((field) => field.id !== action.id),
+      };
     default:
       return state;
   }
@@ -155,13 +165,16 @@ const ReactForm = (props: Props) => {
   }, [props.id]);
 
   const handleAddField = () => {
+    if (newField.label === "" || newField.kind === "") {
+      return;
+    }
     const field = getNewField(newField.kind, newField.label);
     addFormField(props.id, field).then((data) => {
       if (data) {
         dispatch({
           type: "ADD_FIELD",
           newField: data,
-          callback: () => fieldDispatch({ type: "UPDATE_FIELD", label: "" })
+          callback: () => fieldDispatch({ type: "UPDATE_FIELD", label: "" }),
         });
       }
     });
@@ -197,9 +210,10 @@ const ReactForm = (props: Props) => {
                     handleChangeCB={(value, id) =>
                       dispatch({ type: "UPDATE_LABEL", id, value })
                     }
-                    removeFieldCB={(id) =>
-                      dispatch({ type: "REMOVE_FIELD", id: id })
-                    }
+                    removeFieldCB={(id) => {
+                      deleteFormField(state.id, field.id);
+                      dispatch({ type: "REMOVE_FIELD", id: id });
+                    }}
                   />
                 );
               } else if (field.kind === "DROPDOWN") {
@@ -216,9 +230,10 @@ const ReactForm = (props: Props) => {
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
                     }
-                    removeFieldCB={(id) =>
-                      dispatch({ type: "REMOVE_FIELD", id: id })
-                    }
+                    removeFieldCB={(id) => {
+                      deleteFormField(state.id, field.id);
+                      dispatch({ type: "REMOVE_FIELD", id: id });
+                    }}
                     addOptionCB={() =>
                       dispatch({ type: "ADD_OPTION", id: field.id })
                     }
@@ -245,9 +260,10 @@ const ReactForm = (props: Props) => {
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
                     }
-                    removeFieldCB={() =>
-                      dispatch({ type: "REMOVE_FIELD", id: field.id })
-                    }
+                    removeFieldCB={(id) => {
+                      deleteFormField(state.id, field.id);
+                      dispatch({ type: "REMOVE_FIELD", id: id });
+                    }}
                     addOptionCB={() =>
                       dispatch({ type: "ADD_OPTION", id: field.id })
                     }
@@ -278,9 +294,10 @@ const ReactForm = (props: Props) => {
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
                     }
-                    removeFieldCB={(id) =>
-                      dispatch({ type: "REMOVE_FIELD", id: id })
-                    }
+                    removeFieldCB={(id) => {
+                      deleteFormField(state.id, field.id);
+                      dispatch({ type: "REMOVE_FIELD", id: id });
+                    }}
                   />
                 );
               }

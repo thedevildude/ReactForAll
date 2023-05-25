@@ -75,3 +75,11 @@ export const addFormField = async (id: number, newField: formField) => {
   return await request(`forms/${id}/fields/`, "POST", newField);
 }
 
+export const deleteFormField = async (id: number, fieldId: number) => {
+  return await request(`forms/${id}/fields/${fieldId}/`, "DELETE");
+}
+
+export const deleteForm = async (id: number) => {
+  return await request(`forms/${id}/`, "DELETE");
+}
+
