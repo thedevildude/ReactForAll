@@ -83,3 +83,7 @@ export const deleteForm = async (id: number) => {
   return await request(`forms/${id}/`, "DELETE");
 }
 
+export const updateFormField = async (id: number, fieldId: number, data: any) => {
+  return await request(`forms/${id}/fields/${fieldId}/`, "PATCH", data);
+}
+

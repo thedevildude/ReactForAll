@@ -40,6 +40,7 @@ export const getNewField: (fieldType: string, fieldLabel: string) => formField =
       id: Number(new Date()),
       kind: "TEXT",
       label: fieldLabel,
+      options: null,
       meta: {
         description: {
           fieldType: "textarea",
@@ -51,12 +52,13 @@ export const getNewField: (fieldType: string, fieldLabel: string) => formField =
     return {
       id: Number(new Date()),
       kind: "TEXT",
+      label: fieldLabel,
+      options: null,
       meta: {
         description: {
           fieldType: fieldType as textFieldTypes,
         },
       },
-      label: fieldLabel,
       value: "",
     };
   }

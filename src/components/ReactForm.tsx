@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useReducer } from "react";
 import LabelledInput from "./InputComponents/LabelledInput";
 import { Link } from "raviger";
-import { formData, formField } from "../types/formTypes";
+import { fieldOption, formData, formField } from "../types/formTypes";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
 import MultiSelectInput from "./FormEditorComponents/MultiSelectInput";
 import TextAreaInput from "./FormEditorComponents/TextAreaInput";
@@ -10,6 +10,7 @@ import {
   deleteFormField,
   getForm,
   getFormFields,
+  updateFormField,
 } from "../utils/apiUtls";
 import { Pagination } from "../types/common";
 import { getNewField } from "../utils/helpers";
@@ -46,12 +47,13 @@ type UpdateTitleAction = {
 type AddOption = {
   type: "ADD_OPTION";
   id: number;
+  options: fieldOption[];
 };
 
 type RemoveOption = {
   type: "REMOVE_OPTION";
   id: number;
-  index: number;
+  options: fieldOption[];
 };
 
 type UpdateLabel = {
@@ -97,6 +99,32 @@ const reducer = (state: formData, action: FormAction) => {
       return {
         ...state,
         formFields: state.formFields.filter((field) => field.id !== action.id),
+      };
+    case "ADD_OPTION":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (field.id === action.id && field.kind !== "TEXT") {
+            return {
+              ...field,
+              options: [...action.options],
+            };
+          }
+          return field;
+        }),
+      };
+    case "REMOVE_OPTION":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (field.id === action.id && field.kind !== "TEXT") {
+            return {
+              ...field,
+              options: [...action.options],
+            };
+          }
+          return field;
+        }),
       };
     default:
       return state;
@@ -234,16 +262,42 @@ const ReactForm = (props: Props) => {
                       deleteFormField(state.id, field.id);
                       dispatch({ type: "REMOVE_FIELD", id: id });
                     }}
-                    addOptionCB={() =>
-                      dispatch({ type: "ADD_OPTION", id: field.id })
-                    }
-                    removeOptionCB={(id, index) =>
-                      dispatch({
-                        type: "REMOVE_OPTION",
-                        id: id,
-                        index: index,
-                      })
-                    }
+                    addOptionCB={() => {
+                      const data = {
+                        options: [
+                          ...field.options,
+                          {
+                            id: Number(new Date()),
+                            option: `Option ${field.options.length + 1}`,
+                          },
+                        ],
+                      };
+                      updateFormField(state.id, field.id, data).then(
+                        (field) => {
+                          dispatch({
+                            type: "ADD_OPTION",
+                            id: field.id,
+                            options: field.options,
+                          });
+                        }
+                      );
+                    }}
+                    removeOptionCB={(id, optionId) => {
+                      const data = {
+                        options: field.options.filter(
+                          (option) => option.id !== optionId
+                        ),
+                      };
+                      updateFormField(state.id, field.id, data).then(
+                        (field) => {
+                          dispatch({
+                            type: "REMOVE_OPTION",
+                            id,
+                            options: field.options,
+                          });
+                        }
+                      );
+                    }}
                   />
                 );
               } else if (field.kind === "GENERIC") {
@@ -264,16 +318,42 @@ const ReactForm = (props: Props) => {
                       deleteFormField(state.id, field.id);
                       dispatch({ type: "REMOVE_FIELD", id: id });
                     }}
-                    addOptionCB={() =>
-                      dispatch({ type: "ADD_OPTION", id: field.id })
-                    }
-                    removeOptionCB={(id, index) =>
-                      dispatch({
-                        type: "REMOVE_OPTION",
-                        id: id,
-                        index: index,
-                      })
-                    }
+                    addOptionCB={() => {
+                      const data = {
+                        options: [
+                          ...field.options,
+                          {
+                            id: Number(new Date()),
+                            option: `Option ${field.options.length + 1}`,
+                          },
+                        ],
+                      };
+                      updateFormField(state.id, field.id, data).then(
+                        (field) => {
+                          dispatch({
+                            type: "ADD_OPTION",
+                            id: field.id,
+                            options: JSON.parse(field.options),
+                          });
+                        }
+                      );
+                    }}
+                    removeOptionCB={(id, optionId) => {
+                      const data = {
+                        options: field.options.filter(
+                          (option) => option.id !== optionId
+                        ),
+                      };
+                      updateFormField(state.id, field.id, data).then(
+                        (field) => {
+                          dispatch({
+                            type: "REMOVE_OPTION",
+                            id,
+                            options: field.options,
+                          });
+                        }
+                      );
+                    }}
                   />
                 );
               } else if (

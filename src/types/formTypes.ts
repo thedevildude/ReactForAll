@@ -30,6 +30,7 @@ type TextField = {
   id: number;
   kind: "TEXT";
   label: string;
+  options: null;
   meta: {
     description: {
       fieldType: textFieldTypes;
@@ -58,6 +59,7 @@ type TextArea = {
   id: number;
   kind: "TEXT";
   label: string;
+  options: null;
   meta: {
     description: {
       fieldType: "textarea";
