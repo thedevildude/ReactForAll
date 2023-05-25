@@ -68,9 +68,17 @@ type TextArea = {
   value: string;
 };
 
+type RadioSelect = {
+  id: number;
+  kind: "RADIO";
+  label: string;
+  options: fieldOption[];
+  value: string;
+};
+
 export type fieldOption = {
   id: number;
   option: string;
 }
 
-export type formField = TextField | DropdownField | MultiSelect | TextArea;
+export type formField = TextField | DropdownField | MultiSelect | TextArea | RadioSelect;

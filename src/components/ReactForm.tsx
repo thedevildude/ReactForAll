@@ -260,9 +260,7 @@ const ReactForm = (props: Props) => {
                     id={field.id}
                     value={field.label}
                     type={field.meta.description.fieldType}
-                    handleChangeCB={(value, id) =>
-                      handleLabelChange(value, id)
-                    }
+                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
                     removeFieldCB={(id) => {
                       deleteFormField(state.id, field.id);
                       dispatch({ type: "REMOVE_FIELD", id: id });
@@ -277,9 +275,7 @@ const ReactForm = (props: Props) => {
                     kind={field.kind}
                     value={field.label}
                     options={field.options}
-                    handleChangeCB={(value, id) =>
-                      handleLabelChange(value, id)
-                    }
+                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
                     }
@@ -333,9 +329,61 @@ const ReactForm = (props: Props) => {
                     kind={field.kind}
                     value={field.label}
                     options={field.options}
-                    handleChangeCB={(value, id) =>
-                      handleLabelChange(value, id)
+                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
+                    handleOptionChangeCB={(value, id, index) =>
+                      dispatch({ type: "UPDATE_OPTION", id, index, value })
                     }
+                    removeFieldCB={(id) => {
+                      deleteFormField(state.id, field.id);
+                      dispatch({ type: "REMOVE_FIELD", id: id });
+                    }}
+                    addOptionCB={() => {
+                      const data = {
+                        options: [
+                          ...field.options,
+                          {
+                            id: Number(new Date()),
+                            option: `Option ${field.options.length + 1}`,
+                          },
+                        ],
+                      };
+                      updateFormField(state.id, field.id, data).then(
+                        (field) => {
+                          dispatch({
+                            type: "ADD_OPTION",
+                            id: field.id,
+                            options: JSON.parse(field.options),
+                          });
+                        }
+                      );
+                    }}
+                    removeOptionCB={(id, optionId) => {
+                      const data = {
+                        options: field.options.filter(
+                          (option) => option.id !== optionId
+                        ),
+                      };
+                      updateFormField(state.id, field.id, data).then(
+                        (field) => {
+                          dispatch({
+                            type: "REMOVE_OPTION",
+                            id,
+                            options: field.options,
+                          });
+                        }
+                      );
+                    }}
+                  />
+                );
+              } else if (field.kind === "RADIO") {
+                return (
+                  <MultiSelectInput
+                    id={field.id}
+                    key={field.id}
+                    kind={field.kind}
+                    value={field.label}
+                    options={field.options}
+                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
                     }
@@ -393,9 +441,7 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     rows={4}
                     columns={5}
-                    handleChangeCB={(value, id) =>
-                      handleLabelChange(value, id)
-                    }
+                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
                     }
@@ -432,6 +478,7 @@ const ReactForm = (props: Props) => {
               <option value="time">Time</option>
               <option value="dropdown">Dropdown</option>
               <option value="multiselect">Multi Select</option>
+              <option value="radio">Radio Select</option>
               <option value="textarea">Text Area</option>
             </select>
             <button

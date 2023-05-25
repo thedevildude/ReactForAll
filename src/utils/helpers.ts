@@ -15,16 +15,19 @@ const getForm: (id: number) => formData = (id) => {
   return form[0];
 };
 
-export const getNewField: (fieldType: string, fieldLabel: string) => formField = (
+export const getNewField: (
   fieldType: string,
   fieldLabel: string
-) => {
+) => formField = (fieldType: string, fieldLabel: string) => {
   if (fieldType === "dropdown") {
     return {
       id: Number(new Date()),
       kind: "DROPDOWN",
       label: fieldLabel,
-      options: [{ id: 1, option: "Option 1" }, { id: 2, option: "Option 2" }],
+      options: [
+        { id: 1, option: "Option 1" },
+        { id: 2, option: "Option 2" },
+      ],
       value: "",
     };
   } else if (fieldType === "multiselect") {
@@ -32,7 +35,10 @@ export const getNewField: (fieldType: string, fieldLabel: string) => formField =
       id: Number(new Date()),
       kind: "GENERIC",
       label: fieldLabel,
-      options: [{ id: 1, option: "Option 1" }, { id: 2, option: "Option 2" }],
+      options: [
+        { id: 1, option: "Option 1" },
+        { id: 2, option: "Option 2" },
+      ],
       value: "",
     };
   } else if (fieldType === "textarea") {
@@ -46,6 +52,17 @@ export const getNewField: (fieldType: string, fieldLabel: string) => formField =
           fieldType: "textarea",
         },
       },
+      value: "",
+    };
+  } else if (fieldType === "radio") {
+    return {
+      id: Number(new Date()),
+      kind: "RADIO",
+      label: fieldLabel,
+      options: [
+        { id: 1, option: "Option 1" },
+        { id: 2, option: "Option 2" },
+      ],
       value: "",
     };
   } else {
