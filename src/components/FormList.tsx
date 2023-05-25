@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useQueryParams } from "raviger";
 import { Form } from "../types/formTypes";
-import { getLocalForms, saveLocalForms } from "../utils/helpers";
 import Modal from "./common/Modal";
 import CreateForm from "./CreateForm";
-import { listForm } from "../utils/apiUtls";
+import { deleteForm, listForm } from "../utils/apiUtls";
 import { Pagination } from "../types/common";
 
 const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
   try {
-    const data: Pagination<Form> = await listForm({ offset: 0, limit: 2});
+    const data: Pagination<Form> = await listForm({ offset: 0, limit: 5});
     setFormsCB(data.results);
   } catch (error) {
     console.error(error);
@@ -19,17 +18,9 @@ const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
 const FormList = () => {
   const [forms, setForms] = useState<Form[]>([]);
   const [newForm, setNewForm] = useState(false);
-
   useEffect(() => {
     fetchForms(setForms);
   }, []);
-
-  const deleteForm: (id: number) => void = (id) => {
-    const localForms = getLocalForms();
-    const newFormList = localForms.filter((form) => form.id !== id);
-    saveLocalForms([...newFormList]);
-    setForms(getLocalForms());
-  };
 
   const [{ search }, setQuery] = useQueryParams();
   const [searchString, setSearchString] = useState("");
@@ -97,7 +88,13 @@ const FormList = () => {
                     </Link>
                     <button
                       className="bg-amber-500 hover:bg-amber-700 flex items-center p-3 fill-white rounded-lg"
-                      onClick={() => form.id && deleteForm(form.id)}
+                      onClick={() => {
+                        if(form.id) {
+                          deleteForm(form.id).then(() => {
+                            fetchForms(setForms);
+                          });
+                        }
+                      }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
