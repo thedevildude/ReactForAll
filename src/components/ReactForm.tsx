@@ -126,6 +126,19 @@ const reducer = (state: formData, action: FormAction) => {
           return field;
         }),
       };
+    case "UPDATE_LABEL":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (field.id === action.id) {
+            return {
+              ...field,
+              label: action.value,
+            };
+          }
+          return field;
+        }),
+      };
     default:
       return state;
   }
@@ -208,6 +221,18 @@ const ReactForm = (props: Props) => {
     });
   };
 
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleLabelChange = (value: string, id: number) => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    dispatch({ type: "UPDATE_LABEL", id, value });
+    updateTimeoutRef.current = setTimeout(() => {
+      updateFormField(props.id, id, { label: value });
+    }, 5000);
+  };
+
   return (
     <div>
       {loading === true ? (
@@ -236,7 +261,7 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     type={field.meta.description.fieldType}
                     handleChangeCB={(value, id) =>
-                      dispatch({ type: "UPDATE_LABEL", id, value })
+                      handleLabelChange(value, id)
                     }
                     removeFieldCB={(id) => {
                       deleteFormField(state.id, field.id);
@@ -253,7 +278,7 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     options={field.options}
                     handleChangeCB={(value, id) =>
-                      dispatch({ type: "UPDATE_LABEL", id, value })
+                      handleLabelChange(value, id)
                     }
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
@@ -309,7 +334,7 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     options={field.options}
                     handleChangeCB={(value, id) =>
-                      dispatch({ type: "UPDATE_LABEL", id, value })
+                      handleLabelChange(value, id)
                     }
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
@@ -369,7 +394,7 @@ const ReactForm = (props: Props) => {
                     rows={4}
                     columns={5}
                     handleChangeCB={(value, id) =>
-                      dispatch({ type: "UPDATE_LABEL", id, value })
+                      handleLabelChange(value, id)
                     }
                     handleOptionChangeCB={(value, id, index) =>
                       dispatch({ type: "UPDATE_OPTION", id, index, value })
