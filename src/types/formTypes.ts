@@ -1,9 +1,3 @@
-type formData = {
-  id: number;
-  title: string;
-  formFields: formField[];
-};
-
 export type Form = {
   id?: number;
   title: string;
@@ -24,40 +18,57 @@ export const validateForm = (form: Form) => {
   return errors;
 }
 
-export type textFieldTypes = "text" | "email" | "number" | "date" | "tel" | "time";
+export type formData = {
+  id: number;
+  title: string;
+  formFields: formField[];
+};
+
+export type textFieldTypes = "text" | "email" | "number" | "date" | "tel" | "time" | "textarea";
 
 type TextField = {
   id: number;
-  kind: "text";
+  kind: "TEXT";
   label: string;
-  type: textFieldTypes;
+  meta: {
+    description: {
+      fieldType: textFieldTypes;
+    }
+  };
   value: string;
 };
 
 type DropdownField = {
   id: number;
-  kind: "dropdown";
+  kind: "DROPDOWN";
   label: string;
-  options: string[];
+  options: fieldOption[];
   value: string;
 };
 
 type MultiSelect = {
   id: number;
-  kind: "multiselect";
+  kind: "GENERIC";
   label: string;
-  options: string[];
-  value: string[];
+  options: fieldOption[];
+  value: string;
 };
 
 type TextArea = {
   id: number;
-  kind: "textarea";
+  kind: "TEXT";
   label: string;
-  rows: number;
-  columns: number;
+  meta: {
+    description: {
+      fieldType: "textarea";
+    }
+  };
   value: string;
 };
 
+export type fieldOption = {
+  id: number;
+  option: string;
+}
+
 export type formField = TextField | DropdownField | MultiSelect | TextArea;
-export type { formData };

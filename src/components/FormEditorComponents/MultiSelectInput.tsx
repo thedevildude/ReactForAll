@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { fieldOption } from "../../types/formTypes";
 
 interface Props {
   id: number;
   value: string;
-  options: string[];
+  options: fieldOption[];
   kind: string;
   handleChangeCB: (value: string, id: number) => void;
   handleOptionChangeCB: (value: string, id: number, index: number) => void;
@@ -53,7 +54,7 @@ const MultiSelectInput = (props: Props) => {
           {props.options.map((option, index) => (
             <div key={index} className="flex items-center">
               <input
-                value={option}
+                value={option.option}
                 type="text"
                 className="border border-gray-200 p-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:bg-gray-200 hover:bg-gray-200"
                 onChange={(e) =>

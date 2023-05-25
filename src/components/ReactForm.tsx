@@ -1,62 +1,25 @@
 import React, { useEffect, useState, useRef, useReducer } from "react";
 import LabelledInput from "./InputComponents/LabelledInput";
 import { Link } from "raviger";
-import { getForm, getLocalForms, saveLocalForms } from "../utils/helpers";
-import { formData, formField, textFieldTypes } from "../types/formTypes";
+import { formData, formField } from "../types/formTypes";
 import DropdownInput from "./FormEditorComponents/DropdownInput";
 import MultiSelectInput from "./FormEditorComponents/MultiSelectInput";
 import TextAreaInput from "./FormEditorComponents/TextAreaInput";
+import { addFormField, getForm, getFormFields } from "../utils/apiUtls";
+import { Pagination } from "../types/common";
+import { getNewField } from "../utils/helpers";
 
 interface Props {
   id: number;
 }
 
-const saveformData = (currentState: formData) => {
-  const localForms = getLocalForms();
-  const updatedLocalForms = localForms.map((form) =>
-    form.id === currentState.id ? currentState : form
-  );
-  saveLocalForms(updatedLocalForms);
-};
+// Action Types
 
-const getNewField: (fieldType: string, fieldLabel: string) => formField = (
-  fieldType: string,
-  fieldLabel: string
-) => {
-  if (fieldType === "dropdown") {
-    return {
-      id: Number(new Date()),
-      kind: "dropdown",
-      label: fieldLabel,
-      options: ["Option 1", "Option 2"],
-      value: "",
-    };
-  } else if (fieldType === "multiselect") {
-    return {
-      id: Number(new Date()),
-      kind: "multiselect",
-      label: fieldLabel,
-      options: ["Option 1", "Option 2"],
-      value: [],
-    };
-  } else if (fieldType === "textarea") {
-    return {
-      id: Number(new Date()),
-      kind: "textarea",
-      label: fieldLabel,
-      rows: 4,
-      columns: 20,
-      value: "",
-    };
-  } else {
-    return {
-      id: Number(new Date()),
-      kind: "text",
-      type: fieldType as textFieldTypes,
-      label: fieldLabel,
-      value: "",
-    };
-  }
+type InitializeForm = {
+  type: "INITIALIZE_FORM";
+  id: number;
+  title: string;
+  formFields: formField[];
 };
 
 type RemoveAction = {
@@ -66,8 +29,7 @@ type RemoveAction = {
 
 type AddAction = {
   type: "ADD_FIELD";
-  kind: string;
-  label: string;
+  newField: formField;
   callback: () => void;
 };
 
@@ -101,6 +63,7 @@ type UpdateOption = {
 };
 
 type FormAction =
+  | InitializeForm
   | AddAction
   | RemoveAction
   | UpdateTitleAction
@@ -112,88 +75,21 @@ type FormAction =
 // Action Reducer
 const reducer = (state: formData, action: FormAction) => {
   switch (action.type) {
-    case "ADD_FIELD":
-      const newField = getNewField(action.kind, action.label);
-      action.callback();
-      if (newField.label.length > 0) {
-        return {
-          ...state,
-          formFields: [...state.formFields, newField],
-        };
-      }
-      return state;
-    case "REMOVE_FIELD":
+    case "INITIALIZE_FORM":
       return {
         ...state,
-        formFields: state.formFields.filter((field) => field.id !== action.id),
-      };
-    case "UPDATE_TITLE":
-      return {
-        ...state,
+        id: action.id,
         title: action.title,
+        formFields: action.formFields,
       };
-    case "ADD_OPTION":
+    case "ADD_FIELD":
+      action.callback();
       return {
         ...state,
-        formFields: state.formFields.map((field) => {
-          if (
-            (field.kind === "dropdown" || field.kind === "multiselect") &&
-            field.id === action.id
-          ) {
-            return {
-              ...field,
-              options: [...field.options, `Option ${field.options.length + 1}`],
-            };
-          }
-          return field;
-        }),
+        formFields: [...state.formFields, action.newField],
       };
-    case "REMOVE_OPTION":
-      return {
-        ...state,
-        formFields: state.formFields.map((field) => {
-          if (
-            (field.kind === "dropdown" || field.kind === "multiselect") &&
-            field.id === action.id
-          ) {
-            const newOptions = field.options.filter(
-              (_, index) => index !== action.index
-            );
-            return { ...field, options: newOptions };
-          }
-          return field;
-        }),
-      };
-    case "UPDATE_LABEL":
-      return {
-        ...state,
-        formFields: state.formFields.map((field) => {
-          if (field.id === action.id) {
-            return { ...field, label: action.value };
-          }
-          return field;
-        }),
-      };
-    case "UPDATE_OPTION":
-      return {
-        ...state,
-        formFields: state.formFields.map((field) => {
-          if (
-            (field.kind === "dropdown" || field.kind === "multiselect") &&
-            field.id === action.id
-          ) {
-            field.options[action.index] = action.value;
-            return { ...field, options: field.options };
-          } else if (field.kind === "textarea" && field.id === action.id) {
-            if (action.index === 0) {
-              return { ...field, rows: Number(action.value) };
-            } else {
-              return { ...field, columns: Number(action.value) };
-            }
-          }
-          return field;
-        }),
-      };
+    default:
+      return state;
   }
 };
 
@@ -209,7 +105,10 @@ type UpdateKind = {
 
 type FieldAction = UpdateField | UpdateKind;
 
-const fieldReducer = (state: { kind: string; label: string }, action: FieldAction) => {
+const fieldReducer = (
+  state: { kind: string; label: string },
+  action: FieldAction
+) => {
   switch (action.type) {
     case "UPDATE_FIELD":
       return {
@@ -226,36 +125,47 @@ const fieldReducer = (state: { kind: string; label: string }, action: FieldActio
 
 const ReactForm = (props: Props) => {
   const [loading, setLoading] = useState(true);
-  const initialState: () => formData = () => {
-    const form = getForm(props.id);
-    return form;
-  };
-  const [state, dispatch] = useReducer(reducer, null, () => initialState());
-  const [newField, fieldDispatch] = useReducer(fieldReducer, { kind: "", label: ""});
-
+  const [state, dispatch] = useReducer(reducer, {
+    id: props.id,
+    title: "",
+    formFields: [],
+  });
+  const [newField, fieldDispatch] = useReducer(fieldReducer, {
+    kind: "",
+    label: "",
+  });
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const oldTitle = document.title;
-    document.title = "Form Editor";
+    const fetchForm = async () => {
+      const form = await getForm(props.id);
+      const data: Pagination<formField> = await getFormFields(props.id);
+      if (form && data.results) {
+        dispatch({
+          type: "INITIALIZE_FORM",
+          id: form.id,
+          title: form.title,
+          formFields: data.results,
+        });
+        setLoading(false);
+      }
+    };
+    fetchForm();
     titleRef.current?.focus();
-    return () => {
-      document.title = oldTitle;
-    };
-  }, []);
+  }, [props.id]);
 
-  useEffect(() => {
-    if (state === null || state === undefined) {
-      return;
-    }
-    setLoading(false);
-    let timeout = setTimeout(() => {
-      saveformData(state);
-    }, 1000);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [state]);
+  const handleAddField = () => {
+    const field = getNewField(newField.kind, newField.label);
+    addFormField(props.id, field).then((data) => {
+      if (data) {
+        dispatch({
+          type: "ADD_FIELD",
+          newField: data,
+          callback: () => fieldDispatch({ type: "UPDATE_FIELD", label: "" })
+        });
+      }
+    });
+  };
 
   return (
     <div>
@@ -274,13 +184,16 @@ const ReactForm = (props: Props) => {
           />
           <div className="flex flex-col gap-4 pt-4">
             {state.formFields.map((field) => {
-              if (field.kind === "text") {
+              if (
+                field.kind === "TEXT" &&
+                field.meta.description.fieldType !== "textarea"
+              ) {
                 return (
                   <LabelledInput
                     key={field.id}
                     id={field.id}
                     value={field.label}
-                    type={field.type}
+                    type={field.meta.description.fieldType}
                     handleChangeCB={(value, id) =>
                       dispatch({ type: "UPDATE_LABEL", id, value })
                     }
@@ -289,7 +202,7 @@ const ReactForm = (props: Props) => {
                     }
                   />
                 );
-              } else if (field.kind === "dropdown") {
+              } else if (field.kind === "DROPDOWN") {
                 return (
                   <DropdownInput
                     id={field.id}
@@ -318,7 +231,7 @@ const ReactForm = (props: Props) => {
                     }
                   />
                 );
-              } else if (field.kind === "multiselect") {
+              } else if (field.kind === "GENERIC") {
                 return (
                   <MultiSelectInput
                     id={field.id}
@@ -347,15 +260,18 @@ const ReactForm = (props: Props) => {
                     }
                   />
                 );
-              } else if (field.kind === "textarea") {
+              } else if (
+                field.kind === "TEXT" &&
+                field.meta.description.fieldType === "textarea"
+              ) {
                 return (
                   <TextAreaInput
                     id={field.id}
                     key={field.id}
                     kind={field.kind}
                     value={field.label}
-                    rows={field.rows}
-                    columns={field.columns}
+                    rows={4}
+                    columns={5}
                     handleChangeCB={(value, id) =>
                       dispatch({ type: "UPDATE_LABEL", id, value })
                     }
@@ -398,14 +314,7 @@ const ReactForm = (props: Props) => {
             </select>
             <button
               className="p-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-              onClick={(_) =>
-                dispatch({
-                  type: "ADD_FIELD",
-                  kind: newField.kind,
-                  label: newField.label,
-                  callback: () => fieldDispatch({ type: "UPDATE_FIELD", label: "" }),
-                })
-              }
+              onClick={handleAddField}
             >
               Add Field
             </button>
@@ -413,7 +322,7 @@ const ReactForm = (props: Props) => {
           <div className="flex gap-4 justify-center">
             <button
               className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
-              onClick={(_) => saveformData(state)}
+              onClick={(_) => console.log("Save")}
             >
               Save
             </button>
