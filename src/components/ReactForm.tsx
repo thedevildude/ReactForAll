@@ -15,6 +15,7 @@ import {
 } from "../utils/apiUtls";
 import { Pagination } from "../types/common";
 import { getNewField } from "../utils/helpers";
+import ShareForm from "./ShareForm";
 
 interface Props {
   id: number;
@@ -306,6 +307,7 @@ const ReactForm = (props: Props) => {
             onChange={(e) => {handleTitleUpdate(e.target.value)}}
             ref={titleRef}
           />
+          <ShareForm formId={props.id} />
           <div className="flex flex-col gap-4 pt-4">
             {state.formFields.map((field) => {
               if (

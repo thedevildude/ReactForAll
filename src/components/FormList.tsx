@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, navigate, useQueryParams } from "raviger";
 import { Form } from "../types/formTypes";
 import Modal from "./common/Modal";
@@ -21,8 +21,11 @@ const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
 const FormList = () => {
   const [forms, setForms] = useState<Form[]>([]);
   const [newForm, setNewForm] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     fetchForms(setForms);
+    searchInputRef.current?.focus();
   }, []);
 
   const [{ search }, setQuery] = useQueryParams();
@@ -31,13 +34,15 @@ const FormList = () => {
     <div>
       <div className="flex flex-col gap-5 p-4 max-h-96 overflow-y-auto">
         <form
+          aria-labelledby="search"
           onSubmit={(e) => {
             e.preventDefault();
             setQuery({ search: searchString });
           }}
         >
-          <label>Search</label>
+          <label id="search">Search</label>
           <input
+            ref={searchInputRef}
             value={searchString}
             name="search"
             className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none w-full"
@@ -55,6 +60,8 @@ const FormList = () => {
             return (
               <div
                 key={form.id}
+                role="listitem"
+                aria-label={form.title}
                 className="flex gap-2 border-2 p-2 rounded-lg items-center justify-between"
               >
                 <div className="flex flex-col gap-2">
