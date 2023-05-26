@@ -16,7 +16,8 @@ const LabelledDropdown = (props: Props) => {
   };
   const handleOptionSelect = (option: string) => {
     if (option.length === 0) return;
-    let selectedOptions = props.value.length === 0 ? [] : props.value.split(",");
+    let selectedOptions =
+      props.value.length === 0 ? [] : props.value.split(",");
     if (selectedOptions.includes(option)) {
       selectedOptions = selectedOptions.filter(
         (selectedOption) => selectedOption !== option

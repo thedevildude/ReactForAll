@@ -123,13 +123,13 @@ const PreviewForm = (props: Props) => {
       answers: response,
       form: {
         title: form.title,
-      }
-    }
+      },
+    };
     submitForm(form.id, data).then((res) => {
       console.log(res);
       inputDispatch({ type: "SUBMIT" });
-    })
-  }
+    });
+  };
 
   const renderField: (field: formField) => ReactNode = (field) => {
     switch (field.kind) {

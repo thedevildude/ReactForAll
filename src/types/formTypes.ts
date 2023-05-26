@@ -3,20 +3,20 @@ export type Form = {
   title: string;
   description?: string;
   is_public?: boolean;
-}
+};
 
-export type Errors<T> = Partial<Record<keyof T, string>>
+export type Errors<T> = Partial<Record<keyof T, string>>;
 
 export const validateForm = (form: Form) => {
-  const errors: Errors<Form>  = {};
-  if(form.title.length < 1) {
+  const errors: Errors<Form> = {};
+  if (form.title.length < 1) {
     errors.title = "Title is required";
   }
-  if(form.title.length > 100) {
+  if (form.title.length > 100) {
     errors.title = "Title must be less than 100 characters";
   }
   return errors;
-}
+};
 
 export type formData = {
   id: number;
@@ -27,14 +27,21 @@ export type formData = {
 export type answers = {
   form_field: number;
   value: string;
-}
+};
 
 export type submissionData = {
   answers: answers[];
   form: Form;
-}
+};
 
-export type textFieldTypes = "text" | "email" | "number" | "date" | "tel" | "time" | "textarea";
+export type textFieldTypes =
+  | "text"
+  | "email"
+  | "number"
+  | "date"
+  | "tel"
+  | "time"
+  | "textarea";
 
 type TextField = {
   id: number;
@@ -44,7 +51,7 @@ type TextField = {
   meta: {
     description: {
       fieldType: textFieldTypes;
-    }
+    };
   };
   value: string;
 };
@@ -73,7 +80,7 @@ type TextArea = {
   meta: {
     description: {
       fieldType: "textarea";
-    }
+    };
   };
   value: string;
 };
@@ -89,6 +96,11 @@ type RadioSelect = {
 export type fieldOption = {
   id: number;
   option: string;
-}
+};
 
-export type formField = TextField | DropdownField | MultiSelect | TextArea | RadioSelect;
+export type formField =
+  | TextField
+  | DropdownField
+  | MultiSelect
+  | TextArea
+  | RadioSelect;
