@@ -7,7 +7,7 @@ interface Props {
   options: fieldOption[];
   kind: string;
   handleChangeCB: (value: string, id: number) => void;
-  handleOptionChangeCB: (value: string, id: number, index: number) => void;
+  handleOptionChangeCB: (value: string, id: number, optionId: number) => void;
   removeFieldCB: (id: number) => void;
   addOptionCB: (id: number) => void;
   removeOptionCB: (id: number, index: number) => void;
@@ -51,14 +51,14 @@ const MultiSelectInput = (props: Props) => {
           >
             New Option
           </button>
-          {props.options.map((option, index) => (
-            <div key={index} className="flex items-center">
+          {props.options.map((option) => (
+            <div key={option.id} className="flex items-center">
               <input
                 value={option.option}
                 type="text"
                 className="border border-gray-200 p-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:bg-gray-200 hover:bg-gray-200"
                 onChange={(e) =>
-                  props.handleOptionChangeCB(e.target.value, props.id, index)
+                  props.handleOptionChangeCB(e.target.value, props.id, option.id)
                 }
               />
               <button

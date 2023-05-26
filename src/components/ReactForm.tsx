@@ -65,7 +65,7 @@ type UpdateLabel = {
 type UpdateOption = {
   type: "UPDATE_OPTION";
   id: number;
-  index: number;
+  optionId: number;
   value: string;
 };
 
@@ -134,6 +134,27 @@ const reducer = (state: formData, action: FormAction) => {
             return {
               ...field,
               label: action.value,
+            };
+          }
+          return field;
+        }),
+      };
+    case "UPDATE_OPTION":
+      return {
+        ...state,
+        formFields: state.formFields.map((field) => {
+          if (field.id === action.id && field.kind !== "TEXT") {
+            return {
+              ...field,
+              options: field.options.map((option) => {
+                if (option.id === action.optionId) {
+                  return {
+                    ...option,
+                    option: action.value,
+                  };
+                }
+                return option;
+              }),
             };
           }
           return field;
@@ -230,7 +251,30 @@ const ReactForm = (props: Props) => {
     dispatch({ type: "UPDATE_LABEL", id, value });
     updateTimeoutRef.current = setTimeout(() => {
       updateFormField(props.id, id, { label: value });
-    }, 5000);
+    }, 1000);
+  };
+
+  const handleOptionChange = (value: string, id: number, optionId: number) => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    const options = {
+      options: state.formFields
+        .find((field) => field.id === id)
+        ?.options?.map((option) => {
+          if (option.id === optionId) {
+            return {
+              ...option,
+              option: value,
+            };
+          }
+          return option;
+        }),
+    };
+    dispatch({ type: "UPDATE_OPTION", id, optionId, value });
+    updateTimeoutRef.current = setTimeout(() => {
+      updateFormField(props.id, id, options);
+    }, 1000);
   };
 
   return (
@@ -276,8 +320,8 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     options={field.options}
                     handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, index) =>
-                      dispatch({ type: "UPDATE_OPTION", id, index, value })
+                    handleOptionChangeCB={(value, id, optionId) =>
+                      handleOptionChange(value, id, optionId)
                     }
                     removeFieldCB={(id) => {
                       deleteFormField(state.id, field.id);
@@ -330,8 +374,8 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     options={field.options}
                     handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, index) =>
-                      dispatch({ type: "UPDATE_OPTION", id, index, value })
+                    handleOptionChangeCB={(value, id, optionId) =>
+                      handleOptionChange(value, id, optionId)
                     }
                     removeFieldCB={(id) => {
                       deleteFormField(state.id, field.id);
@@ -352,7 +396,7 @@ const ReactForm = (props: Props) => {
                           dispatch({
                             type: "ADD_OPTION",
                             id: field.id,
-                            options: JSON.parse(field.options),
+                            options: field.options,
                           });
                         }
                       );
@@ -384,8 +428,8 @@ const ReactForm = (props: Props) => {
                     value={field.label}
                     options={field.options}
                     handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, index) =>
-                      dispatch({ type: "UPDATE_OPTION", id, index, value })
+                    handleOptionChangeCB={(value, id, optionId) =>
+                      handleOptionChange(value, id, optionId)
                     }
                     removeFieldCB={(id) => {
                       deleteFormField(state.id, field.id);
@@ -406,7 +450,7 @@ const ReactForm = (props: Props) => {
                           dispatch({
                             type: "ADD_OPTION",
                             id: field.id,
-                            options: JSON.parse(field.options),
+                            options: field.options,
                           });
                         }
                       );
@@ -442,8 +486,8 @@ const ReactForm = (props: Props) => {
                     rows={4}
                     columns={5}
                     handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, index) =>
-                      dispatch({ type: "UPDATE_OPTION", id, index, value })
+                    handleOptionChangeCB={(value, id, optionId) =>
+                      handleOptionChange(value, id, optionId)
                     }
                     removeFieldCB={(id) => {
                       deleteFormField(state.id, field.id);
