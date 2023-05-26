@@ -10,6 +10,7 @@ import {
   deleteFormField,
   getForm,
   getFormFields,
+  updateForm,
   updateFormField,
 } from "../utils/apiUtls";
 import { Pagination } from "../types/common";
@@ -125,6 +126,11 @@ const reducer = (state: formData, action: FormAction) => {
           }
           return field;
         }),
+      };
+    case "UPDATE_TITLE":
+      return {
+        ...state,
+        title: action.title,
       };
     case "UPDATE_LABEL":
       return {
@@ -277,6 +283,16 @@ const ReactForm = (props: Props) => {
     }, 1000);
   };
 
+  const handleTitleUpdate = (value: string) => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    dispatch({ type: "UPDATE_TITLE", title: value });
+    updateTimeoutRef.current = setTimeout(() => {
+      updateForm(props.id, { title: value });
+    }, 1000);
+  };
+
   return (
     <div>
       {loading === true ? (
@@ -287,9 +303,7 @@ const ReactForm = (props: Props) => {
             type="text"
             value={state.title}
             className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-            onChange={(e) => {
-              dispatch({ type: "UPDATE_TITLE", title: e.target.value });
-            }}
+            onChange={(e) => {handleTitleUpdate(e.target.value)}}
             ref={titleRef}
           />
           <div className="flex flex-col gap-4 pt-4">
