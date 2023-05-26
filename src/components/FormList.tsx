@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useQueryParams } from "raviger";
+import { Link, navigate, useQueryParams } from "raviger";
 import { Form } from "../types/formTypes";
 import Modal from "./common/Modal";
 import CreateForm from "./CreateForm";
@@ -8,10 +8,13 @@ import { Pagination } from "../types/common";
 
 const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
   try {
+    if (localStorage.getItem("token") === null) {
+      throw new Error("Not logged in");
+    }
     const data: Pagination<Form> = await listForm({ offset: 0, limit: 5});
     setFormsCB(data.results);
   } catch (error) {
-    console.error(error);
+    navigate("/login");
   }
 };
 
