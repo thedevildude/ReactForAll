@@ -11,7 +11,7 @@ const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
     if (localStorage.getItem("token") === null) {
       throw new Error("Not logged in");
     }
-    const data: Pagination<Form> = await listForm({ offset: 0, limit: 5});
+    const data: Pagination<Form> = await listForm({ offset: 0, limit: 5 });
     setFormsCB(data.results);
   } catch (error) {
     navigate("/login");
@@ -92,7 +92,7 @@ const FormList = () => {
                     <button
                       className="bg-amber-500 hover:bg-amber-700 flex items-center p-3 fill-white rounded-lg"
                       onClick={() => {
-                        if(form.id) {
+                        if (form.id) {
                           deleteForm(form.id).then(() => {
                             fetchForms(setForms);
                           });
@@ -116,7 +116,7 @@ const FormList = () => {
       <div className="p-4">
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
-          onClick={_ => setNewForm(true)}
+          onClick={(_) => setNewForm(true)}
         >
           New Form
         </button>

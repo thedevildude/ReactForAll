@@ -5,6 +5,7 @@ import { Form, answers, formData, formField } from "../types/formTypes";
 import LabelledDropdown from "./InputComponents/LabelledDropdown";
 import LabelledTextArea from "./InputComponents/LabelledTextArea";
 import { Pagination } from "../types/common";
+import LabelledRadio from "./InputComponents/LabelledRadio";
 
 interface Props {
   formId: number;
@@ -76,6 +77,7 @@ const responseReducer = (state: answers[], action: responseAction) => {
     case "INITIALIZE_RESPONSE":
       return action.answers;
     case "UPDATE_RESPONSE":
+      console.log(action.fieldId, action.value);
       return state.map((response) => {
         if (response.form_field === action.fieldId) {
           return { ...response, value: action.value };
@@ -208,6 +210,24 @@ const PreviewForm = (props: Props) => {
               })
             }
             multiple={true}
+          />
+        );
+      case "RADIO":
+        return (
+          <LabelledRadio
+            id={field.id}
+            value={
+              response.find((answer) => answer.form_field === field.id)
+                ?.value || ""
+            }
+            options={field.options}
+            handleChangeCB={(value, id) =>
+              responseDispatch({
+                type: "UPDATE_RESPONSE",
+                fieldId: id,
+                value,
+              })
+            }
           />
         );
     }
