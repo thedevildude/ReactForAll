@@ -24,6 +24,16 @@ export type formData = {
   formFields: formField[];
 };
 
+export type answers = {
+  form_field: number;
+  value: string;
+}
+
+export type submissionData = {
+  answers: answers[];
+  form: Form;
+}
+
 export type textFieldTypes = "text" | "email" | "number" | "date" | "tel" | "time" | "textarea";
 
 type TextField = {

@@ -2,7 +2,7 @@ import React from "react";
 
 interface Props {
   id: number;
-  value: string | string[];
+  value: string;
   rows: number;
   columns: number;
   handleChangeCB: (value: string, id: number) => void;

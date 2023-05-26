@@ -1,5 +1,5 @@
 import { PaginationParams } from "../types/common";
-import { Form, formField } from "../types/formTypes";
+import { Form, formField, submissionData } from "../types/formTypes";
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
 
 type RequestMethod = "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
@@ -85,5 +85,9 @@ export const deleteForm = async (id: number) => {
 
 export const updateFormField = async (id: number, fieldId: number, data: any) => {
   return await request(`forms/${id}/fields/${fieldId}/`, "PATCH", data);
+}
+
+export const submitForm = async (id: number, data: submissionData) => {
+  return await request(`forms/${id}/submission/`, "POST", data);
 }
 
