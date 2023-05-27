@@ -7,7 +7,10 @@ import { deleteForm, listForm } from "../utils/apiUtls";
 import { Pagination } from "../types/common";
 import FormPagination from "./FormPagination";
 
-const fetchForms = async (setFormListCB: (value: formList) => void, offset: number) => {
+const fetchForms = async (
+  setFormListCB: (value: formList) => void,
+  offset: number
+) => {
   try {
     if (localStorage.getItem("token") === null) {
       throw new Error("Not logged in");
@@ -126,7 +129,12 @@ const FormList = () => {
             );
           })}
       </div>
-      <FormPagination count={formList.count} limit={3} offset={offset} setOffsetCB={setOffset} />
+      <FormPagination
+        count={formList.count}
+        limit={3}
+        offset={offset}
+        setOffsetCB={setOffset}
+      />
       <div className="p-4">
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
