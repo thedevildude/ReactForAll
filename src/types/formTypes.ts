@@ -5,6 +5,11 @@ export type Form = {
   is_public?: boolean;
 };
 
+export type formList = {
+  count: number;
+  forms: Form[];
+};
+
 export type Errors<T> = Partial<Record<keyof T, string>>;
 
 export const validateForm = (form: Form) => {

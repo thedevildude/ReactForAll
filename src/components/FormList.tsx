@@ -1,32 +1,38 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, navigate, useQueryParams } from "raviger";
-import { Form } from "../types/formTypes";
+import { Form, formList } from "../types/formTypes";
 import Modal from "./common/Modal";
 import CreateForm from "./CreateForm";
 import { deleteForm, listForm } from "../utils/apiUtls";
 import { Pagination } from "../types/common";
+import FormPagination from "./FormPagination";
 
-const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
+const fetchForms = async (setFormListCB: (value: formList) => void, offset: number) => {
   try {
     if (localStorage.getItem("token") === null) {
       throw new Error("Not logged in");
     }
-    const data: Pagination<Form> = await listForm({ offset: 0, limit: 5 });
-    setFormsCB(data.results);
+    const data: Pagination<Form> = await listForm({ offset, limit: 3 });
+    setFormListCB({
+      count: data.count,
+      forms: data.results,
+    });
   } catch (error) {
     navigate("/login");
   }
 };
 
 const FormList = () => {
-  const [forms, setForms] = useState<Form[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [formList, setFormList] = useState<formList>({ count: 0, forms: [] });
+
   const [newForm, setNewForm] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchForms(setForms);
+    fetchForms(setFormList, offset);
     searchInputRef.current?.focus();
-  }, []);
+  }, [offset]);
 
   const [{ search }, setQuery] = useQueryParams();
   const [searchString, setSearchString] = useState("");
@@ -52,7 +58,7 @@ const FormList = () => {
             }}
           />
         </form>
-        {forms
+        {formList.forms
           .filter((form) =>
             form.title.toLowerCase().includes(search?.toLowerCase() || "")
           )
@@ -101,7 +107,7 @@ const FormList = () => {
                       onClick={() => {
                         if (form.id) {
                           deleteForm(form.id).then(() => {
-                            fetchForms(setForms);
+                            fetchForms(setFormList, offset);
                           });
                         }
                       }}
@@ -120,6 +126,7 @@ const FormList = () => {
             );
           })}
       </div>
+      <FormPagination count={formList.count} limit={3} offset={offset} setOffsetCB={setOffset} />
       <div className="p-4">
         <button
           className="py-2 px-5 mt-2 text-white bg-green-500 hover:bg-green-700 font-semibold rounded-lg"
