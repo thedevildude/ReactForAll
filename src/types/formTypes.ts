@@ -39,6 +39,13 @@ export type submissionData = {
   form: Form;
 };
 
+export type submittedResult = {
+  answers: answers[];
+  id?: number;
+  form?: Form;
+  created_date?: string;
+};
+
 export type textFieldTypes =
   | "text"
   | "email"

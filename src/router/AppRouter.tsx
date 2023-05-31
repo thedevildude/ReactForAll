@@ -6,6 +6,7 @@ import Home from "../components/Home";
 import PreviewForm from "../components/PreviewForm";
 import Login from "../components/Login";
 import { User } from "../types/userTypes";
+import Submissions from "../components/Submissions";
 
 const routes = {
   "/": () => <Home />,
@@ -15,6 +16,7 @@ const routes = {
   "/preview/:formId": ({ formId }: { formId: string }) => (
     <PreviewForm formId={Number(formId)} />
   ),
+  "/submissions/:id": ({ id }: { id: string }) => <Submissions id={Number(id)} />,
   "*": () => <Redirect to="/" />,
 };
 

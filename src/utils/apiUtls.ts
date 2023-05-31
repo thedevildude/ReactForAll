@@ -103,3 +103,7 @@ export const updateFormField = async (
 export const submitForm = async (id: number, data: submissionData) => {
   return await request(`forms/${id}/submission/`, "POST", data);
 };
+
+export const getSubmissions = async (id: number) => {
+  return await request(`forms/${id}/submission/`, "GET");
+}
