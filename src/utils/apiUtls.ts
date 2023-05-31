@@ -1,11 +1,22 @@
-import { PaginationParams } from "../types/common";
-import { Form, formField, submissionData } from "../types/formTypes";
+import { Pagination, PaginationParams } from "../types/common";
+import {
+  Form,
+  formField,
+  submissionData,
+  submittedResult,
+} from "../types/formTypes";
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
 
-type DataParams = {
-  username: string;
-  password: string;
-} | Partial<Form> | Partial<formField> | submissionData | PaginationParams | {};
+type DataParams =
+  | {
+      username: string;
+      password: string;
+    }
+  | Partial<Form>
+  | Partial<formField>
+  | submissionData
+  | PaginationParams
+  | {};
 
 type RequestMethod = "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
 export const request = async (
@@ -100,10 +111,15 @@ export const updateFormField = async (
   return await request(`forms/${id}/fields/${fieldId}/`, "PATCH", data);
 };
 
-export const submitForm = async (id: number, data: submissionData) => {
+export const submitForm: (
+  id: number,
+  data: submissionData
+) => Promise<submittedResult> = async (id: number, data: submissionData) => {
   return await request(`forms/${id}/submission/`, "POST", data);
 };
 
-export const getSubmissions = async (id: number) => {
+export const getSubmissions: (
+  id: number
+) => Promise<Pagination<submittedResult>> = async (id: number) => {
   return await request(`forms/${id}/submission/`, "GET");
-}
+};

@@ -1,4 +1,4 @@
-import { ReactNode, useReducer, useEffect } from "react";
+import { ReactNode, useReducer, useEffect, useState } from "react";
 import { Link } from "raviger";
 import { getForm, getFormFields, submitForm } from "../utils/apiUtls";
 import { Form, answers, formData, formField } from "../types/formTypes";
@@ -96,6 +96,7 @@ const PreviewForm = (props: Props) => {
     formFields: [],
   });
   const [inputIndex, inputDispatch] = useReducer(reducer, 0);
+  const [notice, setNotice] = useState("");
   const [response, responseDispatch] = useReducer(responseReducer, []);
 
   useEffect(() => {
@@ -121,16 +122,25 @@ const PreviewForm = (props: Props) => {
   }, [props.formId]);
 
   const handleFormSubmit = async () => {
+    let flag = true;
+    response.forEach((answer) => {
+      if (answer.value.length === 0) flag = false;
+    });
     const data = {
       answers: response,
       form: {
         title: form.title,
       },
     };
-    submitForm(form.id, data).then((res) => {
-      console.log(res);
-      inputDispatch({ type: "SUBMIT" });
-    });
+    if (flag) {
+      submitForm(form.id, data).then((result) => {
+        setNotice("Form submitted successfully");
+        inputDispatch({ type: "SUBMIT" });
+      });
+    } else {
+      setNotice("Some fields are empty");
+      setTimeout(() => setNotice(""), 2000);
+    }
   };
 
   const renderField: (field: formField) => ReactNode = (field) => {
@@ -250,6 +260,7 @@ const PreviewForm = (props: Props) => {
           <h1 className="text-xl font-semibold">{form.title}</h1>
           {inputIndex !== -1 ? (
             <div className="flex flex-col items-center w-full gap-5">
+              <p className="text-m text-red-500">{notice}</p>
               <div className="flex flex-col w-full gap-2">
                 {form.formFields[inputIndex].label}
                 {renderField(form.formFields[inputIndex])}
@@ -284,7 +295,7 @@ const PreviewForm = (props: Props) => {
             </div>
           ) : (
             <div className="flex flex-col gap-5">
-              <p>Form Submitted</p>
+              <p>{notice}</p>
               <Link
                 className="py-2 px-5 mt-2 text-white bg-blue-500 hover:bg-blue-700 font-semibold rounded-lg"
                 href="/"
