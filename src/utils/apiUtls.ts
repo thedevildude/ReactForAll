@@ -2,18 +2,23 @@ import { PaginationParams } from "../types/common";
 import { Form, formField, submissionData } from "../types/formTypes";
 const API_BASE_URL = "https://tsapi.coronasafe.live/api/";
 
+type DataParams = {
+  username: string;
+  password: string;
+} | Partial<Form> | Partial<formField> | submissionData | PaginationParams | {};
+
 type RequestMethod = "GET" | "POST" | "PATCH" | "DELETE" | "PUT";
 export const request = async (
   endpoint: string,
   method: RequestMethod = "GET",
-  data: any = {}
+  data: DataParams = {}
 ) => {
   let url;
   let payload: string;
   if (method === "GET") {
     const requestParams = data
       ? `?${Object.keys(data)
-          .map((key) => `${key}=${data[key]}`)
+          .map((key) => `${key}=${data[key as keyof DataParams]}`)
           .join("&")}`
       : "";
     url = `${API_BASE_URL}${endpoint}${requestParams}`;
