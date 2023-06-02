@@ -10,6 +10,12 @@ const fetchSubmissions = async (
 ) => {
   const submission: Pagination<submittedResult> = await getSubmissions(id);
   const form: Pagination<formField> = await getFormFields(id);
+  submission.results.sort((a, b) => {
+    return (
+      new Date(b.created_date || "").getTime() -
+      new Date(a.created_date || "").getTime()
+    );
+  });
   setSubmissions(submission.results);
   setForm(form.results);
 };
