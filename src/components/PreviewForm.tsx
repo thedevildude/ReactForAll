@@ -104,6 +104,7 @@ const PreviewForm = (props: Props) => {
       const form: Form = await getForm(props.formId);
       const data: Pagination<formField> = await getFormFields(props.formId);
       if (form && data.results) {
+        data.results.sort((a, b) => a.id - b.id);
         dispatch({
           type: "INITIALIZE_FORM",
           id: props.formId,

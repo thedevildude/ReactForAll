@@ -8,6 +8,7 @@ import TextAreaInput from "./FormEditorComponents/TextAreaInput";
 import {
   addFormField,
   deleteFormField,
+  fullUpdateFormField,
   getForm,
   getFormFields,
   updateForm,
@@ -16,6 +17,12 @@ import {
 import { Pagination } from "../types/common";
 import { getNewField } from "../utils/helpers";
 import ShareForm from "./ShareForm";
+import {
+  DragDropContext,
+  DraggableLocation,
+  DropResult,
+} from "react-beautiful-dnd";
+import { StrictModeDroppable } from "./StrictModeDroppable";
 
 interface Props {
   id: number;
@@ -71,6 +78,12 @@ type UpdateOption = {
   value: string;
 };
 
+type DragDrop = {
+  type: "DRAG_DROP";
+  source: DraggableLocation;
+  destination: DraggableLocation;
+};
+
 type FormAction =
   | InitializeForm
   | AddAction
@@ -79,12 +92,14 @@ type FormAction =
   | AddOption
   | RemoveOption
   | UpdateLabel
-  | UpdateOption;
+  | UpdateOption
+  | DragDrop;
 
 // Action Reducer
 const reducer = (state: formData, action: FormAction) => {
   switch (action.type) {
     case "INITIALIZE_FORM":
+      action.formFields.sort((a, b) => a.id - b.id);
       return {
         ...state,
         id: action.id,
@@ -166,6 +181,15 @@ const reducer = (state: formData, action: FormAction) => {
           }
           return field;
         }),
+      };
+    case "DRAG_DROP":
+      const { source, destination } = action;
+      const fields = [...state.formFields];
+      const [removed] = fields.splice(source.index, 1);
+      fields.splice(destination.index, 0, removed);
+      return {
+        ...state,
+        formFields: fields,
       };
     default:
       return state;
@@ -294,6 +318,28 @@ const ReactForm = (props: Props) => {
     }, 1000);
   };
 
+  const handleDragDrop = async (result: DropResult) => {
+    const { destination, source } = result;
+    if (!destination) {
+      return;
+    }
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    ) {
+      return;
+    }
+    const oldField = state.formFields[source.index];
+    const newField = state.formFields[destination.index];
+    dispatch({
+      type: "DRAG_DROP",
+      source,
+      destination,
+    });
+    await fullUpdateFormField(props.id, oldField.id, newField);
+    await fullUpdateFormField(props.id, newField.id, oldField);
+  };
+
   return (
     <div>
       {loading === true ? (
@@ -304,217 +350,246 @@ const ReactForm = (props: Props) => {
             type="text"
             value={state.title}
             className="border-2 border-gray-200 rounded-lg p-2 m-2 flex-1 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-            onChange={(e) => {handleTitleUpdate(e.target.value)}}
+            onChange={(e) => {
+              handleTitleUpdate(e.target.value);
+            }}
             ref={titleRef}
           />
           <ShareForm formId={props.id} />
-          <div className="flex flex-col gap-4 pt-4">
-            {state.formFields.map((field) => {
-              if (
-                field.kind === "TEXT" &&
-                field.meta.description.fieldType !== "textarea"
-              ) {
-                return (
-                  <LabelledInput
-                    key={field.id}
-                    id={field.id}
-                    value={field.label}
-                    type={field.meta.description.fieldType}
-                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    removeFieldCB={(id) => {
-                      deleteFormField(state.id, field.id);
-                      dispatch({ type: "REMOVE_FIELD", id: id });
-                    }}
-                  />
-                );
-              } else if (field.kind === "DROPDOWN") {
-                return (
-                  <DropdownInput
-                    id={field.id}
-                    key={field.id}
-                    kind={field.kind}
-                    value={field.label}
-                    options={field.options}
-                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, optionId) =>
-                      handleOptionChange(value, id, optionId)
+          <DragDropContext onDragEnd={handleDragDrop}>
+            <StrictModeDroppable droppableId="fieldlist">
+              {(provided) => (
+                <div
+                  id="fieldlist"
+                  className="flex flex-col gap-4 pt-4"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                >
+                  {state.formFields.map((field, index) => {
+                    if (
+                      field.kind === "TEXT" &&
+                      field.meta.description.fieldType !== "textarea"
+                    ) {
+                      return (
+                        <LabelledInput
+                          key={field.id}
+                          index={index}
+                          id={field.id}
+                          value={field.label}
+                          type={field.meta.description.fieldType}
+                          handleChangeCB={(value, id) =>
+                            handleLabelChange(value, id)
+                          }
+                          removeFieldCB={(id) => {
+                            deleteFormField(state.id, field.id);
+                            dispatch({ type: "REMOVE_FIELD", id: id });
+                          }}
+                        />
+                      );
+                    } else if (field.kind === "DROPDOWN") {
+                      return (
+                        <DropdownInput
+                          id={field.id}
+                          index={index}
+                          key={field.id}
+                          kind={field.kind}
+                          value={field.label}
+                          options={field.options}
+                          handleChangeCB={(value, id) =>
+                            handleLabelChange(value, id)
+                          }
+                          handleOptionChangeCB={(value, id, optionId) =>
+                            handleOptionChange(value, id, optionId)
+                          }
+                          removeFieldCB={(id) => {
+                            deleteFormField(state.id, field.id);
+                            dispatch({ type: "REMOVE_FIELD", id: id });
+                          }}
+                          addOptionCB={() => {
+                            const data = {
+                              options: [
+                                ...field.options,
+                                {
+                                  id: Number(new Date()),
+                                  option: `Option ${field.options.length + 1}`,
+                                },
+                              ],
+                            };
+                            updateFormField(state.id, field.id, data).then(
+                              (field) => {
+                                dispatch({
+                                  type: "ADD_OPTION",
+                                  id: field.id,
+                                  options: field.options,
+                                });
+                              }
+                            );
+                          }}
+                          removeOptionCB={(id, optionId) => {
+                            const data = {
+                              options: field.options.filter(
+                                (option) => option.id !== optionId
+                              ),
+                            };
+                            updateFormField(state.id, field.id, data).then(
+                              (field) => {
+                                dispatch({
+                                  type: "REMOVE_OPTION",
+                                  id,
+                                  options: field.options,
+                                });
+                              }
+                            );
+                          }}
+                        />
+                      );
+                    } else if (field.kind === "GENERIC") {
+                      return (
+                        <MultiSelectInput
+                          id={field.id}
+                          index={index}
+                          key={field.id}
+                          kind={field.kind}
+                          value={field.label}
+                          options={field.options}
+                          handleChangeCB={(value, id) =>
+                            handleLabelChange(value, id)
+                          }
+                          handleOptionChangeCB={(value, id, optionId) =>
+                            handleOptionChange(value, id, optionId)
+                          }
+                          removeFieldCB={(id) => {
+                            deleteFormField(state.id, field.id);
+                            dispatch({ type: "REMOVE_FIELD", id: id });
+                          }}
+                          addOptionCB={() => {
+                            const data = {
+                              options: [
+                                ...field.options,
+                                {
+                                  id: Number(new Date()),
+                                  option: `Option ${field.options.length + 1}`,
+                                },
+                              ],
+                            };
+                            updateFormField(state.id, field.id, data).then(
+                              (field) => {
+                                dispatch({
+                                  type: "ADD_OPTION",
+                                  id: field.id,
+                                  options: field.options,
+                                });
+                              }
+                            );
+                          }}
+                          removeOptionCB={(id, optionId) => {
+                            const data = {
+                              options: field.options.filter(
+                                (option) => option.id !== optionId
+                              ),
+                            };
+                            updateFormField(state.id, field.id, data).then(
+                              (field) => {
+                                dispatch({
+                                  type: "REMOVE_OPTION",
+                                  id,
+                                  options: field.options,
+                                });
+                              }
+                            );
+                          }}
+                        />
+                      );
+                    } else if (field.kind === "RADIO") {
+                      return (
+                        <MultiSelectInput
+                          id={field.id}
+                          index={index}
+                          key={field.id}
+                          kind={field.kind}
+                          value={field.label}
+                          options={field.options}
+                          handleChangeCB={(value, id) =>
+                            handleLabelChange(value, id)
+                          }
+                          handleOptionChangeCB={(value, id, optionId) =>
+                            handleOptionChange(value, id, optionId)
+                          }
+                          removeFieldCB={(id) => {
+                            deleteFormField(state.id, field.id);
+                            dispatch({ type: "REMOVE_FIELD", id: id });
+                          }}
+                          addOptionCB={() => {
+                            const data = {
+                              options: [
+                                ...field.options,
+                                {
+                                  id: Number(new Date()),
+                                  option: `Option ${field.options.length + 1}`,
+                                },
+                              ],
+                            };
+                            updateFormField(state.id, field.id, data).then(
+                              (field) => {
+                                dispatch({
+                                  type: "ADD_OPTION",
+                                  id: field.id,
+                                  options: field.options,
+                                });
+                              }
+                            );
+                          }}
+                          removeOptionCB={(id, optionId) => {
+                            const data = {
+                              options: field.options.filter(
+                                (option) => option.id !== optionId
+                              ),
+                            };
+                            updateFormField(state.id, field.id, data).then(
+                              (field) => {
+                                dispatch({
+                                  type: "REMOVE_OPTION",
+                                  id,
+                                  options: field.options,
+                                });
+                              }
+                            );
+                          }}
+                        />
+                      );
+                    } else if (
+                      field.kind === "TEXT" &&
+                      field.meta.description.fieldType === "textarea"
+                    ) {
+                      return (
+                        <TextAreaInput
+                          id={field.id}
+                          index={index}
+                          key={field.id}
+                          kind={field.kind}
+                          value={field.label}
+                          rows={4}
+                          columns={5}
+                          handleChangeCB={(value, id) =>
+                            handleLabelChange(value, id)
+                          }
+                          handleOptionChangeCB={(value, id, optionId) =>
+                            handleOptionChange(value, id, optionId)
+                          }
+                          removeFieldCB={(id) => {
+                            deleteFormField(state.id, field.id);
+                            dispatch({ type: "REMOVE_FIELD", id: id });
+                          }}
+                        />
+                      );
                     }
-                    removeFieldCB={(id) => {
-                      deleteFormField(state.id, field.id);
-                      dispatch({ type: "REMOVE_FIELD", id: id });
-                    }}
-                    addOptionCB={() => {
-                      const data = {
-                        options: [
-                          ...field.options,
-                          {
-                            id: Number(new Date()),
-                            option: `Option ${field.options.length + 1}`,
-                          },
-                        ],
-                      };
-                      updateFormField(state.id, field.id, data).then(
-                        (field) => {
-                          dispatch({
-                            type: "ADD_OPTION",
-                            id: field.id,
-                            options: field.options,
-                          });
-                        }
-                      );
-                    }}
-                    removeOptionCB={(id, optionId) => {
-                      const data = {
-                        options: field.options.filter(
-                          (option) => option.id !== optionId
-                        ),
-                      };
-                      updateFormField(state.id, field.id, data).then(
-                        (field) => {
-                          dispatch({
-                            type: "REMOVE_OPTION",
-                            id,
-                            options: field.options,
-                          });
-                        }
-                      );
-                    }}
-                  />
-                );
-              } else if (field.kind === "GENERIC") {
-                return (
-                  <MultiSelectInput
-                    id={field.id}
-                    key={field.id}
-                    kind={field.kind}
-                    value={field.label}
-                    options={field.options}
-                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, optionId) =>
-                      handleOptionChange(value, id, optionId)
-                    }
-                    removeFieldCB={(id) => {
-                      deleteFormField(state.id, field.id);
-                      dispatch({ type: "REMOVE_FIELD", id: id });
-                    }}
-                    addOptionCB={() => {
-                      const data = {
-                        options: [
-                          ...field.options,
-                          {
-                            id: Number(new Date()),
-                            option: `Option ${field.options.length + 1}`,
-                          },
-                        ],
-                      };
-                      updateFormField(state.id, field.id, data).then(
-                        (field) => {
-                          dispatch({
-                            type: "ADD_OPTION",
-                            id: field.id,
-                            options: field.options,
-                          });
-                        }
-                      );
-                    }}
-                    removeOptionCB={(id, optionId) => {
-                      const data = {
-                        options: field.options.filter(
-                          (option) => option.id !== optionId
-                        ),
-                      };
-                      updateFormField(state.id, field.id, data).then(
-                        (field) => {
-                          dispatch({
-                            type: "REMOVE_OPTION",
-                            id,
-                            options: field.options,
-                          });
-                        }
-                      );
-                    }}
-                  />
-                );
-              } else if (field.kind === "RADIO") {
-                return (
-                  <MultiSelectInput
-                    id={field.id}
-                    key={field.id}
-                    kind={field.kind}
-                    value={field.label}
-                    options={field.options}
-                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, optionId) =>
-                      handleOptionChange(value, id, optionId)
-                    }
-                    removeFieldCB={(id) => {
-                      deleteFormField(state.id, field.id);
-                      dispatch({ type: "REMOVE_FIELD", id: id });
-                    }}
-                    addOptionCB={() => {
-                      const data = {
-                        options: [
-                          ...field.options,
-                          {
-                            id: Number(new Date()),
-                            option: `Option ${field.options.length + 1}`,
-                          },
-                        ],
-                      };
-                      updateFormField(state.id, field.id, data).then(
-                        (field) => {
-                          dispatch({
-                            type: "ADD_OPTION",
-                            id: field.id,
-                            options: field.options,
-                          });
-                        }
-                      );
-                    }}
-                    removeOptionCB={(id, optionId) => {
-                      const data = {
-                        options: field.options.filter(
-                          (option) => option.id !== optionId
-                        ),
-                      };
-                      updateFormField(state.id, field.id, data).then(
-                        (field) => {
-                          dispatch({
-                            type: "REMOVE_OPTION",
-                            id,
-                            options: field.options,
-                          });
-                        }
-                      );
-                    }}
-                  />
-                );
-              } else if (
-                field.kind === "TEXT" &&
-                field.meta.description.fieldType === "textarea"
-              ) {
-                return (
-                  <TextAreaInput
-                    id={field.id}
-                    key={field.id}
-                    kind={field.kind}
-                    value={field.label}
-                    rows={4}
-                    columns={5}
-                    handleChangeCB={(value, id) => handleLabelChange(value, id)}
-                    handleOptionChangeCB={(value, id, optionId) =>
-                      handleOptionChange(value, id, optionId)
-                    }
-                    removeFieldCB={(id) => {
-                      deleteFormField(state.id, field.id);
-                      dispatch({ type: "REMOVE_FIELD", id: id });
-                    }}
-                  />
-                );
-              }
-              return null;
-            })}
-          </div>
+                    return null;
+                  })}
+                  {provided.placeholder}
+                </div>
+              )}
+            </StrictModeDroppable>
+          </DragDropContext>
           <div className="flex flex-col gap-4 items-center">
             <input
               type="text"

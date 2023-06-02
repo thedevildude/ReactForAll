@@ -111,6 +111,14 @@ export const updateFormField = async (
   return await request(`forms/${id}/fields/${fieldId}/`, "PATCH", data);
 };
 
+export const fullUpdateFormField = async (
+  id: number,
+  fieldId: number,
+  data: formField
+) => {
+  return await request(`forms/${id}/fields/${fieldId}/`, "PUT", data)
+}
+
 export const submitForm: (
   id: number,
   data: submissionData
