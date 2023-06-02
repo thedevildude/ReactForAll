@@ -176,7 +176,7 @@ const FormList = () => {
                       </Draggable>
                     );
                   })}
-                  {provided.placeholder}
+                {provided.placeholder}
               </div>
             )}
           </StrictModeDroppable>
