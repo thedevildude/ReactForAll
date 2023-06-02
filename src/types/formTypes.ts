@@ -1,5 +1,5 @@
 export type Form = {
-  id?: number;
+  id: number;
   title: string;
   description?: string;
   is_public?: boolean;

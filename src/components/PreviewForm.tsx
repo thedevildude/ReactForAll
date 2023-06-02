@@ -129,6 +129,7 @@ const PreviewForm = (props: Props) => {
     const data = {
       answers: response,
       form: {
+        id: form.id,
         title: form.title,
       },
     };
