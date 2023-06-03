@@ -25,7 +25,10 @@ const Submissions = (props: { id: number }) => {
     <div className="flex flex-col p-4 overflow-y-auto max-h-96">
       {submissions.map((submission) => {
         return (
-          <div className="flex flex-col bg-white shadow-lg rounded-lg p-4 mb-4 gap-2 divide-y-2">
+          <div
+            key={submission.id}
+            className="flex flex-col bg-white shadow-lg rounded-lg p-4 mb-4 gap-2 divide-y-2"
+          >
             <div className="flex flex-col">
               <p className="text-lg font-semibold">
                 Submission ID: {submission.id}
@@ -39,7 +42,7 @@ const Submissions = (props: { id: number }) => {
               <div className="flex flex-col mt-2">
                 {submission.answers.map((answer, index) => {
                   return (
-                    <div className="flex flex-col text-gray-500">
+                    <div key={index} className="flex flex-col text-gray-500">
                       <div className="flex gap-2">
                         <p className="font-bold">Question {index + 1}: </p>
                         <p>
