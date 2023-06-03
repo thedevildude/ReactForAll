@@ -48,9 +48,7 @@ const Submissions = (props: { id: number }) => {
               <div className="flex flex-col mt-2">
                 {submission.answers.map((answer, index) => {
                   return (
-                    <div 
-                    key={index}
-                    className="flex flex-col text-gray-500">
+                    <div key={index} className="flex flex-col text-gray-500">
                       <div className="flex gap-2">
                         <p className="font-bold">Question {index + 1}: </p>
                         <p>
